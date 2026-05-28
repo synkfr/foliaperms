@@ -61,3 +61,13 @@
 - [x] Ensure that `PlayerListener.java` always triggers permission attachment refresh on join, even if assigning the default group.
 - [x] Incorporate `/fperm user info <player>` into the `/fperm help` output in `FpermCommand.java`.
 - [x] Compile and verify using `bash gradlew build`.
+
+## Bug Fixes & Refinements - Web Editor Sync & Username Displays
+- [x] Implement group members weight and prefix copy constructor properties in `saveAsync()` inside `PermissionService.java`.
+- [x] Reconcile bidirectional player-group relationships on `load()` inside `PermissionService.java`.
+- [x] Reconcile bidirectional player-group relationships on `loadAsync()` inside `PermissionService.java`.
+- [x] Resolve and serialize offline player usernames inside `ApiDataHandler` in `WebEditorServer.java`.
+- [x] Rework player list rendering to search and display both `<display_name>` and `<UUID>` in `editor.html`.
+- [x] Update inline user editor title to display username and UUID in `editor.html`.
+- [x] Render group member badges with `<display_name> (<short_uuid>)` in `editor.html`.
+- [x] Compile and verify using `bash gradlew build`.

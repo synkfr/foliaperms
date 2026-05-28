@@ -70,6 +70,28 @@ public class PermissionService {
             if (!groups.containsKey("default")) {
                 groups.put("default", new GroupData("default"));
             }
+            
+            // Reconcile user-group bidirectional relationships
+            for (Map.Entry<UUID, UserData> entry : users.entrySet()) {
+                UUID userId = entry.getKey();
+                UserData ud = entry.getValue();
+                for (String gName : ud.getGroups()) {
+                    GroupData gd = groups.computeIfAbsent(gName.toLowerCase(), GroupData::new);
+                    gd.addMember(userId.toString());
+                }
+            }
+            for (Map.Entry<String, GroupData> entry : groups.entrySet()) {
+                String gName = entry.getKey();
+                GroupData gd = entry.getValue();
+                for (String memberStr : gd.getMembers()) {
+                    try {
+                        UUID userId = UUID.fromString(memberStr);
+                        UserData ud = users.computeIfAbsent(userId, UserData::new);
+                        ud.addGroup(gName);
+                    } catch (IllegalArgumentException ignored) {}
+                }
+            }
+
             plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from storage backend.");
             if (!users.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
@@ -109,6 +131,28 @@ public class PermissionService {
                     if (!groups.containsKey("default")) {
                         groups.put("default", new GroupData("default"));
                     }
+                    
+                    // Reconcile user-group bidirectional relationships
+                    for (Map.Entry<UUID, UserData> entry : users.entrySet()) {
+                        UUID userId = entry.getKey();
+                        UserData ud = entry.getValue();
+                        for (String gName : ud.getGroups()) {
+                            GroupData gd = groups.computeIfAbsent(gName.toLowerCase(), GroupData::new);
+                            gd.addMember(userId.toString());
+                        }
+                    }
+                    for (Map.Entry<String, GroupData> entry : groups.entrySet()) {
+                        String gName = entry.getKey();
+                        GroupData gd = entry.getValue();
+                        for (String memberStr : gd.getMembers()) {
+                            try {
+                                UUID userId = UUID.fromString(memberStr);
+                                UserData ud = users.computeIfAbsent(userId, UserData::new);
+                                ud.addGroup(gName);
+                            } catch (IllegalArgumentException ignored) {}
+                        }
+                    }
+
                     plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from storage backend.");
                     if (callback != null) {
                         try { callback.run(); } catch (Throwable t) { kaiakk.foliaPerms.internal.ErrorHandler.handle(plugin, "Exception in load callback", t); }
@@ -250,6 +294,8 @@ public class PermissionService {
             GroupData copy = new GroupData(key);
             copy.getPermissions().addAll(orig.getPermissions());
             copy.getMembers().addAll(orig.getMembers());
+            copy.setWeight(orig.getWeight());
+            copy.setPrefix(orig.getPrefix());
             groupsSnapshot.put(key, copy);
         }
 

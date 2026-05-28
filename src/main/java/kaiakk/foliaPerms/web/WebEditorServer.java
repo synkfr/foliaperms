@@ -238,6 +238,16 @@ public class WebEditorServer {
                     for (String g : e.getValue().getGroups()) grps.add(g);
                     u.add("groups", grps);
 
+                    // Resolve offline player name dynamically from local cache
+                    String name = "OfflinePlayer";
+                    try {
+                        org.bukkit.OfflinePlayer op = org.bukkit.Bukkit.getOfflinePlayer(e.getKey());
+                        if (op != null && op.getName() != null) {
+                            name = op.getName();
+                        }
+                    } catch (Throwable ignored) {}
+                    u.addProperty("name", name);
+
                     usersJson.add(e.getKey().toString(), u);
                 }
                 json.add("users", usersJson);

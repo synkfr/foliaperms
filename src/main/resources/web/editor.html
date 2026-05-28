@@ -952,9 +952,10 @@
 
             let pCount = 0;
             Object.keys(state.users).forEach(uuid => {
-                if (uuid.includes(searchPlayers)) {
+                const u = state.users[uuid];
+                const username = u.name || 'OfflinePlayer';
+                if (uuid.includes(searchPlayers) || username.toLowerCase().includes(searchPlayers)) {
                     pCount++;
-                    const u = state.users[uuid];
                     const permsCount = u.permissions ? u.permissions.length : 0;
                     const groupsCount = u.groups ? u.groups.length : 0;
 
@@ -964,8 +965,9 @@
                     div.onclick = () => openUserEditor(uuid);
                     div.innerHTML = `
                         <div class="item-info">
-                            <span class="item-name" style="font-family: monospace; font-size: 0.75rem; letter-spacing: -0.2px;">${uuid}</span>
-                            <div class="item-meta">
+                            <span class="item-name" style="font-weight: 600; font-size: 0.85rem; display: block; color: var(--text);">${username}</span>
+                            <span class="item-sub" style="font-family: monospace; font-size: 0.65rem; color: var(--text-muted); display: block; margin-top: 1px; word-break: break-all;">${uuid}</span>
+                            <div class="item-meta" style="margin-top: 4px;">
                                 <span class="meta-tag">${permsCount} permissions</span>
                                 <span class="meta-tag">${groupsCount} groups</span>
                             </div>
@@ -1061,7 +1063,9 @@
             document.getElementById('placeholder-screen').style.display = 'none';
             document.getElementById('active-editor-screen').style.display = 'flex';
             
-            document.getElementById('active-editor-title').innerText = uuid;
+            const u = state.users[uuid] || {};
+            const username = u.name || 'OfflinePlayer';
+            document.getElementById('active-editor-title').innerText = `${username} (${uuid})`;
             document.getElementById('active-editor-badge').innerText = 'Player';
             document.getElementById('active-editor-badge').style.backgroundColor = 'var(--success)';
 
@@ -1123,8 +1127,10 @@
                 members.forEach(member => {
                     const tag = document.createElement('span');
                     tag.className = 'tag';
+                    const u = state.users[member] || {};
+                    const displayName = u.name ? `${u.name} (${member.substring(0, 8)}...)` : member;
                     tag.innerHTML = `
-                        <span style="font-family: monospace; font-size: 0.75rem;">${member}</span>
+                        <span style="font-family: monospace; font-size: 0.75rem;">${displayName}</span>
                         <span class="tag-remove" onclick="removeMemberTag('${member}')">&times;</span>
                     `;
                     assocList.appendChild(tag);
