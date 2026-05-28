@@ -168,6 +168,7 @@ public class PermissionService {
     public List<String> getRegisteredPermissionsSorted() {
         if (cachedSortedPermissions == null) {
             cachedSortedPermissions = registeredPermissions.stream()
+                .filter(p -> p != null && !p.isBlank())
                 .sorted(String.CASE_INSENSITIVE_ORDER)
                 .collect(Collectors.toList());
         }

@@ -202,52 +202,59 @@ public class WebEditorServer {
                 return;
             }
 
-            JsonObject json = new JsonObject();
-            
-            // Serialize groups
-            JsonObject groupsJson = new JsonObject();
-            for (Map.Entry<String, GroupData> e : service.getGroups().entrySet()) {
-                JsonObject g = new JsonObject();
-                JsonArray perms = new JsonArray();
-                for (String p : e.getValue().getPermissions()) perms.add(p);
-                g.add("permissions", perms);
-
-                JsonArray mems = new JsonArray();
-                for (String m : e.getValue().getMembers()) mems.add(m);
-                g.add("members", mems);
+            try {
+                JsonObject json = new JsonObject();
                 
-                g.addProperty("weight", e.getValue().getWeight());
-                g.addProperty("prefix", e.getValue().getPrefix());
+                // Serialize groups
+                JsonObject groupsJson = new JsonObject();
+                for (Map.Entry<String, GroupData> e : service.getGroups().entrySet()) {
+                    JsonObject g = new JsonObject();
+                    JsonArray perms = new JsonArray();
+                    for (String p : e.getValue().getPermissions()) perms.add(p);
+                    g.add("permissions", perms);
 
-                groupsJson.add(e.getKey(), g);
+                    JsonArray mems = new JsonArray();
+                    for (String m : e.getValue().getMembers()) mems.add(m);
+                    g.add("members", mems);
+                    
+                    g.addProperty("weight", e.getValue().getWeight());
+                    g.addProperty("prefix", e.getValue().getPrefix());
+
+                    groupsJson.add(e.getKey(), g);
+                }
+                json.add("groups", groupsJson);
+
+                // Serialize users
+                JsonObject usersJson = new JsonObject();
+                for (Map.Entry<UUID, UserData> e : service.getUsers().entrySet()) {
+                    JsonObject u = new JsonObject();
+                    JsonArray perms = new JsonArray();
+                    for (String p : e.getValue().getPermissions()) perms.add(p);
+                    u.add("permissions", perms);
+
+                    JsonArray grps = new JsonArray();
+                    for (String g : e.getValue().getGroups()) grps.add(g);
+                    u.add("groups", grps);
+
+                    usersJson.add(e.getKey().toString(), u);
+                }
+                json.add("users", usersJson);
+
+                // Serialize registered permissions
+                JsonArray regArray = new JsonArray();
+                for (String p : service.getRegisteredPermissionsSorted()) {
+                    regArray.add(p);
+                }
+                json.add("registeredPermissions", regArray);
+
+                byte[] content = json.toString().getBytes(StandardCharsets.UTF_8);
+                sendResponse(exchange, 200, "application/json", content);
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to serialize permissions payload: " + e.getMessage());
+                e.printStackTrace();
+                byte[] response = "{\"error\":\"Internal Server Error\"}".getBytes(StandardCharsets.UTF_8);
+                sendResponse(exchange, 500, "application/json", response);
             }
-            json.add("groups", groupsJson);
-
-            // Serialize users
-            JsonObject usersJson = new JsonObject();
-            for (Map.Entry<UUID, UserData> e : service.getUsers().entrySet()) {
-                JsonObject u = new JsonObject();
-                JsonArray perms = new JsonArray();
-                for (String p : e.getValue().getPermissions()) perms.add(p);
-                u.add("permissions", perms);
-
-                JsonArray grps = new JsonArray();
-                for (String g : e.getValue().getGroups()) grps.add(g);
-                u.add("groups", grps);
-
-                usersJson.add(e.getKey().toString(), u);
-            }
-            json.add("users", usersJson);
-
-            // Serialize registered permissions
-            JsonArray regArray = new JsonArray();
-            for (String p : service.getRegisteredPermissionsSorted()) {
-                regArray.add(p);
-            }
-            json.add("registeredPermissions", regArray);
-
-            byte[] content = json.toString().getBytes(StandardCharsets.UTF_8);
-            sendResponse(exchange, 200, "application/json", content);
         }
     }
 

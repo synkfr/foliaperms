@@ -21,6 +21,24 @@ public class PlayerListener implements Listener {
         this.plugin = plugin;
     }
 
+    @EventHandler(priority = org.bukkit.event.EventPriority.LOWEST)
+    public void onLogin(org.bukkit.event.player.PlayerLoginEvent event) {
+        Player player = event.getPlayer();
+        try {
+            var service = plugin.getPermissionService();
+            if (service != null) {
+                var userData = service.getUser(player.getUniqueId());
+                if (userData == null || userData.getGroups().isEmpty()) {
+                    service.addUserToGroup(player.getUniqueId(), "default");
+                    service.saveAsync();
+                    plugin.getLogger().info("Automatically assigned default group to first-time/groupless player " + player.getName() + " on login.");
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to automatically assign default group to " + player.getName() + " on login: " + e.getMessage());
+        }
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -31,7 +49,7 @@ public class PlayerListener implements Listener {
             player.sendMessage(welcome);
         }
         
-        // Apply default group if first-time or groupless player joins
+        // Apply default group if first-time or groupless player joins (double-check fallback)
         boolean assignedDefault = false;
         try {
             var service = plugin.getPermissionService();
@@ -41,11 +59,11 @@ public class PlayerListener implements Listener {
                     service.addUserToGroup(player.getUniqueId(), "default");
                     service.saveAsync();
                     assignedDefault = true;
-                    plugin.getLogger().info("Automatically assigned default group to first-time/groupless player " + player.getName());
+                    plugin.getLogger().info("Automatically assigned default group to first-time/groupless player " + player.getName() + " on join.");
                 }
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to automatically assign default group to " + player.getName() + ": " + e.getMessage());
+            plugin.getLogger().warning("Failed to automatically assign default group to " + player.getName() + " on join: " + e.getMessage());
         }
         
         // Apply permission attachment if not already applied via addUserToGroup
