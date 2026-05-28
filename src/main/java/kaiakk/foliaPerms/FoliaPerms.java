@@ -89,6 +89,11 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
         getServer().getPluginManager().registerEvents(new kaiakk.foliaPerms.events.PluginEnableListener(this), this);
         getServer().getPluginManager().registerEvents(new kaiakk.foliaPerms.gui.GuiListener(), this);
 
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new kaiakk.foliaPerms.internal.FoliaPermsExpansion(this).register();
+            getLogger().info("Successfully hooked into PlaceholderAPI and registered placeholders.");
+        }
+
         getServer().getServicesManager().register(FoliaPermsAPI.class, this, this, ServicePriority.Normal);
         getLogger().info("FoliaPerms API registered with ServicesManager.");
 
@@ -261,7 +266,7 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
 
     @Override
     public String getPrimaryGroup(Player player) {
-        var groups = getPlayerGroups(player);
-        return groups.stream().findFirst().orElse(null);
+        if (player == null || this.permissionService == null) return null;
+        return this.permissionService.getPlayerPrimaryGroup(player.getUniqueId());
     }
 }
