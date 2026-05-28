@@ -23,3 +23,7 @@
 - [x] Inject custom `FoliaPermissible` dynamically into the player entity using reflection
 - [x] Refactor dynamic reflection injection to locate the permissible field by interface type rather than name for robust Paper/Folia version-independent compatibility
 - [x] Compile and verify using `bash gradlew build`
+
+## Web Editor Minimalist Redesign
+- [x] Rework `editor.html` design: remove all gradients, apply Zinc flat theme, exact borders, clean font hierarchy, premium SaaS modal styles
+- [x] Compile and verify using `bash gradlew build`
