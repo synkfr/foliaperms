@@ -1,0 +1,32 @@
+# ==========================================
+#         FoliaPerms Configuration
+# ==========================================
+
+# Storage settings
+storage:
+  # Choose the storage type: yaml, sqlite, mysql
+  type: yaml
+
+  # SQLite configuration (used if storage.type is 'sqlite')
+  sqlite:
+    file: permissions.db
+
+  # MySQL configuration (used if storage.type is 'mysql')
+  mysql:
+    host: localhost
+    port: 3306
+    database: foliaperms
+    username: root
+    password: ""
+    useSSL: false
+
+# Web Editor settings
+web-editor:
+  enabled: true
+  
+  # The host to bind the web server to.
+  # Use 'localhost' for local access, or '0.0.0.0' to allow external web access.
+  host: localhost
+  
+  # The port to run the web server on
+  port: 8080
