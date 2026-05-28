@@ -39,6 +39,7 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
 
     private PermissionService permissionService;
     private final Map<UUID, PermissionAttachment> attachments = new ConcurrentHashMap<>();
+    private kaiakk.foliaPerms.web.WebEditorServer webEditorServer;
 
     @Override
     public void onLoad() {
@@ -60,12 +61,23 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
     public void onEnable() {
         getLogger().info("FoliaPerms v1.13.0 enabled successfully. Welcome to the Folia environment!");
 
+        // Load configuration defaults
+        saveDefaultConfig();
+
         this.permissionService = new PermissionService(this);
         try {
             this.permissionService.load();
             getLogger().info("Loaded permissions data.");
         } catch (Exception e) {
             kaiakk.foliaPerms.internal.ErrorHandler.handle(this, "Failed to load permissions data", e);
+        }
+
+        // Initialize and start WebEditorServer if enabled
+        if (getConfig().getBoolean("web-editor.enabled", true)) {
+            String host = getConfig().getString("web-editor.host", "localhost");
+            int port = getConfig().getInt("web-editor.port", 8080);
+            this.webEditorServer = new kaiakk.foliaPerms.web.WebEditorServer(this, host, port);
+            this.webEditorServer.start();
         }
 
         if (getCommand("fperm") != null) {
@@ -103,6 +115,13 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
     @Override
     public void onDisable() {
         getLogger().info("FoliaPerms v1.13.0 disabling...");
+
+        // Stop WebEditorServer
+        if (this.webEditorServer != null) {
+            this.webEditorServer.stop();
+            this.webEditorServer = null;
+        }
+
         getLogger().info("Saving permissions...");
         if (this.permissionService != null) {
             try {
@@ -110,6 +129,11 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
                 getLogger().info("Permissions saved.");
             } catch (Exception e) {
                 getLogger().severe("Failed to save permissions: " + e.getMessage());
+            }
+            try {
+                this.permissionService.close();
+            } catch (Exception e) {
+                getLogger().warning("Failed to close permission service resources: " + e.getMessage());
             }
         }
         
@@ -122,12 +146,19 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
         return this.permissionService;
     }
 
+    public kaiakk.foliaPerms.web.WebEditorServer getWebEditorServer() {
+        return this.webEditorServer;
+    }
+
     /**
      * Refreshes permission attachment for a specific player.
      */
     public void refreshPlayerAttachment(Player player) {
         if (player == null || permissionService == null) return;
         try {
+            // Inject custom permissible to intercept dynamic permission checks
+            kaiakk.foliaPerms.internal.FoliaPermissible.inject(player, this);
+            
             UUID id = player.getUniqueId();
             PermissionAttachment old = attachments.remove(id);
             if (old != null) {
@@ -139,9 +170,10 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
 
             getLogger().fine("Created/updated the permissions attachment for " + player.getName());
 
+            boolean isOp = player.isOp();
             var registered = permissionService.getRegisteredPermissions();
             for (String node : registered) {
-                attach.setPermission(node, false);
+                attach.setPermission(node, isOp);
             }
 
             var allowed = permissionService.getAllowedPermissions(id);
@@ -170,7 +202,11 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
      */
     public void refreshAllAttachments() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            refreshPlayerAttachment(p);
+            if (Bukkit.isOwnedByCurrentRegion(p)) {
+                refreshPlayerAttachment(p);
+            } else {
+                p.getScheduler().run(this, task -> refreshPlayerAttachment(p), null);
+            }
         }
     }
 
