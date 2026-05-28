@@ -629,6 +629,18 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- Group Meta Settings (Prefix and Weight) - shown only for groups -->
+                <div class="form-section" id="group-meta-section" style="display: none; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; margin-bottom: 0.25rem; flex-direction: row; gap: 1rem;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                        <span class="form-label">Group Prefix</span>
+                        <input type="text" id="group-prefix-input" class="search-bar" style="margin-bottom: 0;" placeholder="e.g. &c[Admin] " oninput="updateGroupMeta()">
+                    </div>
+                    <div style="width: 120px; display: flex; flex-direction: column; gap: 0.4rem;">
+                        <span class="form-label">Weight</span>
+                        <input type="number" id="group-weight-input" class="search-bar" style="margin-bottom: 0;" placeholder="0" oninput="updateGroupMeta()">
+                    </div>
+                </div>
+
                 <!-- Group or UUID specific field -->
                 <div class="form-section" id="groups-field-section">
                     <span class="form-label" id="modal-field-label">Assigned Groups</span>
@@ -760,6 +772,8 @@
                             <div class="item-meta">
                                 <span class="meta-tag">${permsCount} permissions</span>
                                 <span class="meta-tag">${membersCount} members</span>
+                                ${g.prefix ? `<span class="meta-tag" style="font-family: monospace; font-size: 0.75rem;">"${g.prefix}"</span>` : ''}
+                                ${g.weight ? `<span class="meta-tag">W: ${g.weight}</span>` : ''}
                             </div>
                         </div>
                         <div class="item-actions">
@@ -845,6 +859,11 @@
             document.getElementById('modal-field-label').innerText = 'Group Members (UUIDs)';
             document.getElementById('group-add-input').placeholder = 'Type player UUID to add...';
             
+            const g = state.groups[name] || {};
+            document.getElementById('group-meta-section').style.display = 'flex';
+            document.getElementById('group-prefix-input').value = g.prefix || '';
+            document.getElementById('group-weight-input').value = g.weight || 0;
+            
             refreshModalTags();
             document.getElementById('modal-overlay').classList.add('active');
         }
@@ -858,6 +877,8 @@
             document.getElementById('modal-field-label').innerText = 'Assigned Groups';
             document.getElementById('group-add-input').placeholder = 'Type group to assign...';
 
+            document.getElementById('group-meta-section').style.display = 'none';
+
             refreshModalTags();
             document.getElementById('modal-overlay').classList.add('active');
         }
@@ -868,6 +889,17 @@
             document.getElementById('perm-autocomplete').classList.remove('active');
             document.getElementById('group-add-input').value = '';
             document.getElementById('perm-add-input').value = '';
+        }
+
+        function updateGroupMeta() {
+            if (currentEditor.type === 'group') {
+                const g = state.groups[currentEditor.id];
+                if (g) {
+                    g.prefix = document.getElementById('group-prefix-input').value;
+                    g.weight = parseInt(document.getElementById('group-weight-input').value) || 0;
+                    renderLists();
+                }
+            }
         }
 
         // Render pills/badges in modals

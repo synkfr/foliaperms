@@ -27,3 +27,32 @@
 ## Web Editor Minimalist Redesign
 - [x] Rework `editor.html` design: remove all gradients, apply Zinc flat theme, exact borders, clean font hierarchy, premium SaaS modal styles
 - [x] Compile and verify using `bash gradlew build`
+
+## Group Weight, Prefix & Placeholders
+- [x] Integrate weight/prefix properties into `GroupData` and YAML/SQL storage backends
+- [x] Build weight-based prefix and group resolution in `PermissionService`
+- [x] Create and register the native `FoliaPermsExpansion` PlaceholderAPI hook
+- [x] Incorporate weight/prefix configurations inside Web Editor server and UI modal inputs
+- [x] Compile and verify using `bash gradlew build`
+
+## Implementation & Verification Review
+
+### 1. Group Weight & Prefix Data Hierarchy
+- **Properties**: Supported `weight` (int) and `prefix` (String) inside `GroupData`.
+- **YAML Storage**: Handled non-destructive key loading and writing in `YamlStorage.java`.
+- **SQL Storage**: Dynamically run schema migration `ALTER TABLE foliaperms_groups ADD COLUMN weight INT DEFAULT 0` and `prefix VARCHAR(255) DEFAULT ''` inside a safe SQLite/MySQL block in `SqlPermStorage.java`.
+
+### 2. Service Resolvers & PlaceholderAPI Hooks
+- **Prefix Resolution**: Exposes `PermissionService.getPlayerPrefix(UUID)` resolving weight-prioritized prefix with a fallback to the `default` group.
+- **Primary Group**: Exposes `PermissionService.getPlayerPrimaryGroup(UUID)` resolving group with the highest weight.
+- **PlaceholderAPI Hooks**: Created and dynamically registered `FoliaPermsExpansion` to parse `%foliaperms_prefix%`, `%foliaperms_primary_group%`, and `%foliaperms_group%`.
+
+### 3. Web Editor Inputs & Live Synchronization
+- **UI Element**: Rendered minimalist Zinc-themed Group Prefix & Weight inputs inside `group-meta-section` of the modal body in `editor.html`.
+- **Live Sync**: Integrated active listener `updateGroupMeta()` executing real-time local model updates and flat tag list rerendering.
+- **JSON Serialization**: Configured `WebEditorServer.java` payload parser to read and persist weight/prefix inputs.
+- **Aesthetic**: Slate-colored minimal flat borders, no gradients, matching the premium Obsidian aesthetic.
+
+### 4. Build Compilation
+- Executed `bash gradlew build` and confirmed the artifact compiles and packages flawlessly.
+

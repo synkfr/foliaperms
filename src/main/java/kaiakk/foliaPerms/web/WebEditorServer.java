@@ -179,6 +179,9 @@ public class WebEditorServer {
                 JsonArray mems = new JsonArray();
                 for (String m : e.getValue().getMembers()) mems.add(m);
                 g.add("members", mems);
+                
+                g.addProperty("weight", e.getValue().getWeight());
+                g.addProperty("prefix", e.getValue().getPrefix());
 
                 groupsJson.add(e.getKey(), g);
             }
@@ -252,6 +255,12 @@ public class WebEditorServer {
                             for (com.google.gson.JsonElement m : gObj.getAsJsonArray("members")) {
                                 gd.addMember(m.getAsString());
                             }
+                        }
+                        if (gObj.has("weight")) {
+                            gd.setWeight(gObj.get("weight").getAsInt());
+                        }
+                        if (gObj.has("prefix")) {
+                            gd.setPrefix(gObj.get("prefix").getAsString());
                         }
                         newGroups.put(groupName, gd);
                     }
