@@ -50,14 +50,80 @@ public class FpermCommand implements CommandExecutor {
         try {
             switch (sub) {
                 case "help":
-                    send(sender, ColorConverter.colorize("&eUsage: /fperm editor | reload | gather | user addperm <player> <perm> | user removeperm <player> <perm> | user addgroup <player> <group> | user removegroup <player> <group> | group create <name> | group addperm <name> <perm> | group adduser <name> <player> | group removeuser <name> <player> | check <player> <perm>"));
+                    send(sender, ColorConverter.colorize("&6&l=== FoliaPerms Commands ==="));
+                    send(sender, ColorConverter.colorize("&e/fperm help &7- Show this help menu"));
+                    send(sender, ColorConverter.colorize("&e/fperm editor &7- Open Web permission editor"));
+                    send(sender, ColorConverter.colorize("&e/fperm reload &7- Reload all permissions from configuration"));
+                    send(sender, ColorConverter.colorize("&e/fperm gather &7- Gather registered permissions from plugins"));
+                    send(sender, ColorConverter.colorize("&e/fperm refresh &7- Refresh all players' attachments"));
+                    send(sender, ColorConverter.colorize("&e/fperm check <player> <perm> &7- Check if player has permission"));
+                    send(sender, ColorConverter.colorize("&e/fperm listperms <player> &7- List player's allowed permissions"));
+                    send(sender, ColorConverter.colorize("&e/fperm user addperm|removeperm <player> <perm> &7- Modify player's permissions"));
+                    send(sender, ColorConverter.colorize("&e/fperm user addgroup|removegroup <player> <group> &7- Modify player's groups"));
+                    send(sender, ColorConverter.colorize("&e/fperm group create <name> &7- Create a new group"));
+                    send(sender, ColorConverter.colorize("&e/fperm group addperm|removeperm <name> <perm> &7- Modify group's permissions"));
+                    send(sender, ColorConverter.colorize("&e/fperm group adduser|removeuser <name> <player> &7- Modify group members"));
                     break;
                 case "editor":
                     if (!(sender instanceof org.bukkit.entity.Player)) {
                         send(sender, ColorConverter.colorize("&cThe editor can only be opened by a player in-game."));
                         break;
                     }
-                    kaiakk.foliaPerms.gui.EditorGui.openMain((org.bukkit.entity.Player) sender, plugin);
+                    var webServer = plugin.getWebEditorServer();
+                    if (webServer == null) {
+                        send(sender, ColorConverter.colorize("&cWeb Editor is disabled or not running. Please check config.yml."));
+                        break;
+                    }
+                    
+                    String token = webServer.generateToken();
+                    var config = plugin.getConfig();
+                    String host = config.getString("web-editor.host", "localhost");
+                    int port = config.getInt("web-editor.port", 8080);
+                    
+                    boolean isDefaultHost = host.equalsIgnoreCase("localhost") 
+                            || host.equalsIgnoreCase("127.0.0.1") 
+                            || host.equalsIgnoreCase("0.0.0.0") 
+                            || host.isEmpty();
+                    
+                    String displayHost = isDefaultHost ? "localhost" : host;
+                    String link = "http://" + displayHost + ":" + port + "/editor?token=" + token;
+                    
+                    org.bukkit.entity.Player player = (org.bukkit.entity.Player) sender;
+                    
+                    // Create an interactive, clickable and hoverable TextComponent
+                    net.md_5.bungee.api.chat.TextComponent clickText = new net.md_5.bungee.api.chat.TextComponent(ColorConverter.colorize("&b&n" + link));
+                    clickText.setClickEvent(new net.md_5.bungee.api.chat.ClickEvent(net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL, link));
+                    clickText.setHoverEvent(new net.md_5.bungee.api.chat.HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, 
+                            new net.md_5.bungee.api.chat.hover.content.Text(ColorConverter.colorize("&eClick to open in browser!"))));
+                    
+                    player.sendMessage(ColorConverter.colorize("&6&l=== FoliaPerms Web Editor ==="));
+                    player.sendMessage(ColorConverter.colorize("&eA secure session has been generated for you!"));
+                    player.sendMessage(ColorConverter.colorize("&eClick the link below to open the Web Editor in your browser:"));
+                    player.spigot().sendMessage(clickText);
+                    
+                    if (isDefaultHost) {
+                        // Add secondary machine IP if connecting remotely/internal LAN
+                        String machineIp = "";
+                        try {
+                            machineIp = java.net.InetAddress.getLocalHost().getHostAddress();
+                        } catch (Exception ignored) {}
+                        
+                        if (machineIp != null && !machineIp.isEmpty() && !machineIp.equals("127.0.0.1") && !machineIp.equals(displayHost)) {
+                            String backupLink = "http://" + machineIp + ":" + port + "/editor?token=" + token;
+                            net.md_5.bungee.api.chat.TextComponent backupText = new net.md_5.bungee.api.chat.TextComponent(ColorConverter.colorize("&3&n" + backupLink));
+                            backupText.setClickEvent(new net.md_5.bungee.api.chat.ClickEvent(net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL, backupLink));
+                            backupText.setHoverEvent(new net.md_5.bungee.api.chat.HoverEvent(net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT, 
+                                    new net.md_5.bungee.api.chat.hover.content.Text(ColorConverter.colorize("&eClick here for LAN/Machine IP!"))));
+                            
+                            player.sendMessage(ColorConverter.colorize("&7Or if connecting via LAN/internal network:"));
+                            player.spigot().sendMessage(backupText);
+                        }
+                        
+                        player.sendMessage(ColorConverter.colorize("&7&oNote: This session link is private and expires in 10 minutes."));
+                        player.sendMessage(ColorConverter.colorize("&7&oIf hosting on a remote VPS, replace 'localhost' with your server's public IP."));
+                    } else {
+                        player.sendMessage(ColorConverter.colorize("&7&oNote: This session link is private and expires in 10 minutes."));
+                    }
                     break;
                 case "gather":
                     try {
@@ -149,7 +215,7 @@ public class FpermCommand implements CommandExecutor {
                     break;
                 case "group":
                     if (args.length < 2) {
-                        send(sender, ColorConverter.colorize("&eUsage: /fperm group create|addperm|adduser|removeuser <args>"));
+                        send(sender, ColorConverter.colorize("&eUsage: /fperm group create|addperm|removeperm|adduser|removeuser <args>"));
                         break;
                     }
                     try {
@@ -166,6 +232,12 @@ public class FpermCommand implements CommandExecutor {
                             plugin.getPermissionService().saveAsync();
                             plugin.refreshAllAttachments();
                             send(sender, ColorConverter.colorize("&aAdded permission " + args[3] + " to group " + args[2]));
+                        } else if (gaction.equals("removeperm")) {
+                            if (args.length < 4) { send(sender, ColorConverter.colorize("&eUsage: /fperm group removeperm <name> <perm>")); break; }
+                            service.removeGroupPermission(args[2], args[3]);
+                            plugin.getPermissionService().saveAsync();
+                            plugin.refreshAllAttachments();
+                            send(sender, ColorConverter.colorize("&aRemoved permission " + args[3] + " from group " + args[2]));
                         } else if (gaction.equals("adduser")) {
                             if (args.length < 4) { send(sender, ColorConverter.colorize("&eUsage: /fperm group adduser <name> <player>")); break; }
                             String gname = args[2];
