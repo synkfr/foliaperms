@@ -24,6 +24,18 @@
 - [x] Refactor dynamic reflection injection to locate the permissible field by interface type rather than name for robust Paper/Folia version-independent compatibility
 - [x] Compile and verify using `bash gradlew build`
 
+## LuckPerms-Style Web Editor Transformation
+- [x] Refactor HTML structure of `editor.html` into a side-by-side grid (Left Sidebar & Right Main Panel)
+- [x] Implement tabbed navigation ("Groups" vs. "Players") inside the Left Sidebar with searches and create buttons
+- [x] Replace modal-based overlays with a dynamic inline editor panel in the Right Main Panel
+- [x] Create a premium placeholder view shown when no group or player is selected
+- [x] Design an "Add Permission" input bar with built-in autocomplete matching LuckPerms aesthetics
+- [x] Render a highly clean, flat table/list of permissions with instant delete buttons
+- [x] Support metadata rows (Prefix and Weight inputs) inline in the editor header for groups
+- [x] Support member/group associations (assigned groups for users, members list for groups) directly inline
+- [x] Ensure 100% feature parity with original Javascript state management (token-based save state)
+- [x] Verify build compiles flawlessly via `bash gradlew build`
+
 ## Web Editor Minimalist Redesign
 - [x] Rework `editor.html` design: remove all gradients, apply Zinc flat theme, exact borders, clean font hierarchy, premium SaaS modal styles
 - [x] Compile and verify using `bash gradlew build`

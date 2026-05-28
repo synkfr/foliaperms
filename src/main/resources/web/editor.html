@@ -42,10 +42,10 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* Custom minimal scrollbar */
@@ -68,13 +68,12 @@
         header {
             background-color: var(--panel);
             border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
+            padding: 0.75rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            height: 56px;
+            flex-shrink: 0;
         }
 
         .logo {
@@ -83,14 +82,14 @@
             gap: 0.75rem;
             font-family: var(--font-display);
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             color: var(--text);
             letter-spacing: -0.5px;
         }
 
         .logo-symbol {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             background-color: var(--primary);
             border-radius: 6px;
             display: flex;
@@ -98,7 +97,7 @@
             justify-content: center;
             color: #ffffff;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-family: var(--font-display);
         }
 
@@ -106,7 +105,7 @@
             background-color: var(--primary);
             border: 1px solid var(--primary);
             color: #ffffff;
-            padding: 0.6rem 1.25rem;
+            padding: 0.55rem 1.2rem;
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.85rem;
@@ -126,59 +125,73 @@
             transform: scale(0.98);
         }
 
-        /* Dashboard layout */
-        main {
+        /* Main split view container */
+        .container {
+            display: flex;
             flex: 1;
-            padding: 2rem;
-            max-width: 1400px;
+            overflow: hidden;
             width: 100%;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            height: calc(100vh - 56px);
         }
 
-        @media (max-width: 968px) {
-            main {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Panel design */
-        .panel {
+        /* Left Navigation Sidebar */
+        .sidebar {
+            width: 320px;
             background-color: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            height: 78vh;
+            flex-shrink: 0;
         }
 
-        .panel-header {
+        .sidebar-tabs {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            background-color: rgba(0, 0, 0, 0.15);
         }
 
-        .panel-title {
-            font-family: var(--font-display);
-            font-size: 1.15rem;
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.85rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            position: relative;
         }
 
-        .panel-counter {
-            font-size: 0.75rem;
-            background-color: var(--border);
+        .tab-btn:hover {
             color: var(--text-secondary);
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            color: var(--text);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
         }
 
         .search-bar {
@@ -186,7 +199,7 @@
             background-color: var(--input-bg);
             border: 1px solid var(--border);
             color: var(--text);
-            padding: 0.65rem 0.9rem;
+            padding: 0.6rem 0.85rem;
             border-radius: 6px;
             font-size: 0.85rem;
             margin-bottom: 1rem;
@@ -198,21 +211,21 @@
             border-color: var(--primary);
         }
 
-        /* Item listing */
+        /* Sidebar listings */
         .list-container {
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            padding-right: 0.25rem;
+            gap: 0.4rem;
+            padding-right: 0.1rem;
         }
 
         .list-item {
             background-color: var(--input-bg);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.85rem 1.1rem;
+            border-radius: 6px;
+            padding: 0.75rem 0.9rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -222,7 +235,15 @@
 
         .list-item:hover {
             border-color: var(--border-hover);
-            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        .list-item.active {
+            border-color: var(--primary);
+            background-color: rgba(99, 102, 241, 0.04);
+        }
+
+        .list-item.active .item-name {
+            color: var(--primary);
         }
 
         .item-info {
@@ -234,7 +255,7 @@
 
         .item-name {
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text);
             white-space: nowrap;
             overflow: hidden;
@@ -242,16 +263,16 @@
         }
 
         .item-meta {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             display: flex;
-            gap: 0.75rem;
+            gap: 0.6rem;
             align-items: center;
         }
 
         .meta-tag {
             background-color: rgba(255, 255, 255, 0.04);
-            padding: 1px 6px;
+            padding: 1px 5px;
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.02);
         }
@@ -266,7 +287,7 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            padding: 0.45rem;
+            padding: 0.4rem;
             border-radius: 6px;
             transition: all 0.15s ease;
             display: flex;
@@ -288,8 +309,8 @@
             background-color: transparent;
             border: 1px dashed var(--border);
             color: var(--text-secondary);
-            padding: 0.7rem;
-            border-radius: 8px;
+            padding: 0.65rem;
+            border-radius: 6px;
             font-weight: 500;
             font-size: 0.85rem;
             cursor: pointer;
@@ -299,112 +320,282 @@
             gap: 0.5rem;
             transition: all 0.15s ease;
             margin-top: 1rem;
+            flex-shrink: 0;
         }
 
         .create-btn:hover {
             border-color: var(--primary);
             color: var(--text);
-            background-color: rgba(99, 102, 241, 0.05);
+            background-color: rgba(99, 102, 241, 0.04);
         }
 
-        /* Modal Panel redesign */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal {
-            background-color: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            width: 600px;
-            max-width: 92%;
-            max-height: 82vh;
+        /* Right Content Panel */
+        .main-content {
+            flex: 1;
+            background-color: var(--bg);
             display: flex;
             flex-direction: column;
-            transform: scale(0.96);
-            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            position: relative;
         }
 
-        .modal-overlay.active .modal {
-            transform: scale(1);
+        /* Placeholder Screen State */
+        .placeholder-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
         }
 
-        .modal-header {
+        .placeholder-icon {
+            width: 56px;
+            height: 56px;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        .placeholder-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .placeholder-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-width: 380px;
+            line-height: 1.4;
+        }
+
+        /* Active inline editor panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-header {
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border);
+            background-color: var(--panel);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .editor-header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .modal-title {
+        .editor-title {
             font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
             font-size: 1.25rem;
-            transition: color 0.15s ease;
+            font-weight: 700;
+            color: var(--text);
             display: flex;
             align-items: center;
+            gap: 0.65rem;
         }
 
-        .modal-close:hover {
-            color: var(--text);
+        .editor-badge {
+            font-size: 0.7rem;
+            background-color: var(--primary);
+            color: #ffffff;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        .modal-body {
-            padding: 1.5rem;
-            overflow-y: auto;
+        /* Metadata form row (Prefix/Weight) */
+        .meta-form-row {
+            display: flex;
+            gap: 1rem;
+            background-color: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+        }
+
+        .meta-form-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .meta-form-item.flex-grow {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
         }
 
-        .form-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+        .meta-form-item.width-120 {
+            width: 130px;
         }
 
         .form-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.75px;
         }
 
-        /* Pill styling */
+        /* Content cards view */
+        .editor-body {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1100px) {
+            .editor-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .editor-card {
+            background-color: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            height: fit-content;
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.55rem;
+            margin-bottom: 0.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-counter {
+            font-size: 0.7rem;
+            background-color: var(--border);
+            color: var(--text-secondary);
+            padding: 1px 7px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .input-group input {
+            flex: 1;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.55rem 0.8rem;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.85rem;
+            transition: border-color 0.15s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .add-tag-btn {
+            background-color: var(--border);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.55rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .add-tag-btn:hover {
+            background-color: var(--border-hover);
+            border-color: var(--border-hover);
+        }
+
+        /* Permissions list table */
+        .perms-table {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            overflow: hidden;
+        }
+
+        .perms-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.55rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .perms-row:last-child {
+            border-bottom: none;
+        }
+
+        .perms-node {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            padding-right: 1rem;
+        }
+
+        .perms-row:hover {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        .delete-btn-sm {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .delete-btn-sm:hover {
+            color: var(--danger);
+            background-color: var(--danger-bg);
+        }
+
+        /* Pill badges card wrapping */
         .tags-wrapper {
             display: flex;
             flex-wrap: wrap;
             gap: 0.4rem;
             min-height: 42px;
-            padding: 0.6rem;
+            padding: 0.55rem;
             background-color: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -432,45 +623,6 @@
 
         .tag-remove:hover {
             color: var(--danger);
-        }
-
-        .input-group {
-            display: flex;
-            gap: 0.5rem;
-            position: relative;
-        }
-
-        .input-group input {
-            flex: 1;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.6rem 0.85rem;
-            border-radius: 6px;
-            outline: none;
-            font-size: 0.85rem;
-            transition: border-color 0.15s ease;
-        }
-
-        .input-group input:focus {
-            border-color: var(--primary);
-        }
-
-        .add-tag-btn {
-            background-color: var(--border);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.6rem 1.1rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .add-tag-btn:hover {
-            background-color: var(--border-hover);
-            border-color: var(--border-hover);
         }
 
         /* Dropdowns */
@@ -504,31 +656,6 @@
         .autocomplete-item:hover {
             background-color: var(--border);
             color: var(--text);
-        }
-
-        /* Modal footer */
-        .modal-footer {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .cancel-btn {
-            background-color: var(--border);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.55rem 1.1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.15s ease;
-        }
-
-        .cancel-btn:hover {
-            background-color: var(--border-hover);
-            border-color: var(--border-hover);
         }
 
         /* Sleek clean toast notifications */
@@ -583,97 +710,116 @@
         </button>
     </header>
 
-    <main>
-        <!-- Groups Card -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2 class="panel-title">
-                    Groups <span class="panel-counter" id="groups-count">0</span>
-                </h2>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" id="tab-groups" onclick="switchTab('groups')">Groups</button>
+                <button class="tab-btn" id="tab-players" onclick="switchTab('players')">Players</button>
             </div>
-            <input type="text" class="search-bar" id="search-groups" placeholder="Search groups...">
-            <div class="list-container" id="groups-list">
-                <!-- JS populated -->
-            </div>
-            <button class="create-btn" onclick="openCreateGroupModal()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Create Group
-            </button>
-        </div>
-
-        <!-- Players Card -->
-        <div class="panel">
-            <div class="panel-header">
-                <h2 class="panel-title">
-                    Players <span class="panel-counter" id="players-count">0</span>
-                </h2>
-            </div>
-            <input type="text" class="search-bar" id="search-players" placeholder="Search players...">
-            <div class="list-container" id="players-list">
-                <!-- JS populated -->
-            </div>
-            <button class="create-btn" onclick="openCreatePlayerModal()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Cache Player Profile
-            </button>
-        </div>
-    </main>
-
-    <!-- Overlay & Editor Dialog -->
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">Edit Profile</h3>
-                <button class="modal-close" onclick="closeModal()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            
+            <!-- Groups Tab Content -->
+            <div class="tab-content active" id="content-groups">
+                <input type="text" class="search-bar" id="search-groups" placeholder="Search groups...">
+                <div class="list-container" id="groups-list">
+                    <!-- Populated dynamically -->
+                </div>
+                <button class="create-btn" onclick="openCreateGroupModal()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Create Group
                 </button>
             </div>
-            <div class="modal-body">
-                <!-- Group Meta Settings (Prefix and Weight) - shown only for groups -->
-                <div class="form-section" id="group-meta-section" style="display: none; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; margin-bottom: 0.25rem; flex-direction: row; gap: 1rem;">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
-                        <span class="form-label">Group Prefix</span>
-                        <input type="text" id="group-prefix-input" class="search-bar" style="margin-bottom: 0;" placeholder="e.g. &c[Admin] " oninput="updateGroupMeta()">
-                    </div>
-                    <div style="width: 120px; display: flex; flex-direction: column; gap: 0.4rem;">
-                        <span class="form-label">Weight</span>
-                        <input type="number" id="group-weight-input" class="search-bar" style="margin-bottom: 0;" placeholder="0" oninput="updateGroupMeta()">
-                    </div>
-                </div>
 
-                <!-- Group or UUID specific field -->
-                <div class="form-section" id="groups-field-section">
-                    <span class="form-label" id="modal-field-label">Assigned Groups</span>
-                    <div class="tags-wrapper" id="modal-groups-tags">
-                        <!-- Pill items -->
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="group-add-input" placeholder="Type a group name..." oninput="handleGroupInput(this)">
-                        <button class="add-tag-btn" onclick="addGroupTag()">Add</button>
-                        <div class="autocomplete-dropdown" id="group-autocomplete"></div>
-                    </div>
+            <!-- Players Tab Content -->
+            <div class="tab-content" id="content-players">
+                <input type="text" class="search-bar" id="search-players" placeholder="Search players...">
+                <div class="list-container" id="players-list">
+                    <!-- Populated dynamically -->
                 </div>
-
-                <!-- Permission Node Editor -->
-                <div class="form-section">
-                    <span class="form-label">Permission Nodes</span>
-                    <div class="tags-wrapper" id="modal-perms-tags">
-                        <!-- Pill items -->
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="perm-add-input" placeholder="Type a permission node..." oninput="handlePermInput(this)">
-                        <button class="add-tag-btn" onclick="addPermTag()">Add</button>
-                        <div class="autocomplete-dropdown" id="perm-autocomplete"></div>
-                    </div>
-                </div>
+                <button class="create-btn" onclick="openCreatePlayerModal()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Cache Player Profile
+                </button>
             </div>
-            <div class="modal-footer">
-                <button class="cancel-btn" onclick="closeModal()">Close</button>
+        </div>
+
+        <!-- Main Content Panel -->
+        <div class="main-content">
+            <!-- Placeholder Splash View -->
+            <div class="placeholder-view" id="placeholder-screen">
+                <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <h3 class="placeholder-title">FoliaPerms Editor Panel</h3>
+                <p class="placeholder-subtitle">Select a group or player from the sidebar menu to begin inspecting and configuring permission settings.</p>
+            </div>
+
+            <!-- Active Inline Editor Panel -->
+            <div class="editor-panel" id="active-editor-screen" style="display: none;">
+                <div class="editor-header">
+                    <div class="editor-header-top">
+                        <div class="editor-title">
+                            <span id="active-editor-title">Group Settings</span>
+                            <span class="editor-badge" id="active-editor-badge">Group</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Metadata configs inline for groups -->
+                    <div class="meta-form-row" id="group-metadata-row" style="display: none;">
+                        <div class="meta-form-item flex-grow">
+                            <span class="form-label">Group Prefix</span>
+                            <input type="text" id="group-prefix-input" class="search-bar" style="margin-bottom: 0;" placeholder="e.g. &c[Admin] " oninput="updateGroupMeta()">
+                        </div>
+                        <div class="meta-form-item width-120">
+                            <span class="form-label">Weight</span>
+                            <input type="number" id="group-weight-input" class="search-bar" style="margin-bottom: 0;" placeholder="0" oninput="updateGroupMeta()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-body">
+                    <!-- Left: Permission Nodes list -->
+                    <div class="editor-card">
+                        <div class="card-title">
+                            <span>Permission Nodes</span>
+                            <span class="panel-counter" id="active-perms-count">0</span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" id="perm-add-input" placeholder="Type a permission node to assign..." oninput="handlePermInput(this)">
+                            <button class="add-tag-btn" onclick="addPermTag()">Add</button>
+                            <div class="autocomplete-dropdown" id="perm-autocomplete"></div>
+                        </div>
+
+                        <div class="perms-table" id="active-perms-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Group Members / Player Assigned Groups -->
+                    <div class="editor-card" id="associations-card">
+                        <div class="card-title">
+                            <span id="associations-label">Assigned Groups</span>
+                            <span class="panel-counter" id="active-associations-count">0</span>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="text" id="group-add-input" placeholder="Type a group to assign..." oninput="handleGroupInput(this)">
+                            <button class="add-tag-btn" onclick="addGroupTag()">Add</button>
+                            <div class="autocomplete-dropdown" id="group-autocomplete"></div>
+                        </div>
+
+                        <div class="tags-wrapper" id="active-associations-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Minimal custom toast -->
+    <!-- Toast elements -->
     <div class="toast" id="toast">
         <span class="toast-icon" id="toast-icon">✔</span>
         <span id="toast-msg">Settings saved successfully</span>
@@ -689,11 +835,22 @@
 
         let currentEditor = {
             type: null, // 'user' or 'group'
-            id: null    // UUID or Group key name
+            id: null    // UUID or Group name
         };
+
+        let activeTab = 'groups';
 
         // Parse token from URL queries
         const token = new URLSearchParams(window.location.search).get('token') || '';
+
+        // Sidebar tab switching
+        function switchTab(tab) {
+            activeTab = tab;
+            document.getElementById('tab-groups').classList.toggle('active', tab === 'groups');
+            document.getElementById('tab-players').classList.toggle('active', tab === 'players');
+            document.getElementById('content-groups').classList.toggle('active', tab === 'groups');
+            document.getElementById('content-players').classList.toggle('active', tab === 'players');
+        }
 
         // Toast visual feedback
         function showToast(msg, type = 'success') {
@@ -748,7 +905,7 @@
             }
         }
 
-        // Render listings on the grid
+        // Render sidebar listings
         function renderLists() {
             // Render groups list
             const groupsContainer = document.getElementById('groups-list');
@@ -763,8 +920,9 @@
                     const permsCount = g.permissions ? g.permissions.length : 0;
                     const membersCount = g.members ? g.members.length : 0;
                     
+                    const activeClass = (currentEditor.type === 'group' && currentEditor.id === name) ? ' active' : '';
                     const div = document.createElement('div');
-                    div.className = 'list-item';
+                    div.className = 'list-item' + activeClass;
                     div.onclick = () => openGroupEditor(name);
                     div.innerHTML = `
                         <div class="item-info">
@@ -772,13 +930,13 @@
                             <div class="item-meta">
                                 <span class="meta-tag">${permsCount} permissions</span>
                                 <span class="meta-tag">${membersCount} members</span>
-                                ${g.prefix ? `<span class="meta-tag" style="font-family: monospace; font-size: 0.75rem;">"${g.prefix}"</span>` : ''}
+                                ${g.prefix ? `<span class="meta-tag" style="font-family: monospace; font-size: 0.7rem;">"${g.prefix}"</span>` : ''}
                                 ${g.weight ? `<span class="meta-tag">W: ${g.weight}</span>` : ''}
                             </div>
                         </div>
                         <div class="item-actions">
                             <button class="action-btn delete" onclick="deleteGroup('${name}', event)">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
                     `;
@@ -800,12 +958,13 @@
                     const permsCount = u.permissions ? u.permissions.length : 0;
                     const groupsCount = u.groups ? u.groups.length : 0;
 
+                    const activeClass = (currentEditor.type === 'user' && currentEditor.id === uuid) ? ' active' : '';
                     const div = document.createElement('div');
-                    div.className = 'list-item';
+                    div.className = 'list-item' + activeClass;
                     div.onclick = () => openUserEditor(uuid);
                     div.innerHTML = `
                         <div class="item-info">
-                            <span class="item-name" style="font-family: monospace; font-size: 0.8rem; letter-spacing: -0.2px;">${uuid}</span>
+                            <span class="item-name" style="font-family: monospace; font-size: 0.75rem; letter-spacing: -0.2px;">${uuid}</span>
                             <div class="item-meta">
                                 <span class="meta-tag">${permsCount} permissions</span>
                                 <span class="meta-tag">${groupsCount} groups</span>
@@ -813,7 +972,7 @@
                         </div>
                         <div class="item-actions">
                             <button class="action-btn delete" onclick="deletePlayer('${uuid}', event)">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
                     `;
@@ -832,7 +991,16 @@
                 Object.values(state.users).forEach(u => {
                     if (u.groups) u.groups = u.groups.filter(g => g !== name);
                 });
+                
+                if (currentEditor.type === 'group' && currentEditor.id === name) {
+                    currentEditor.type = null;
+                    currentEditor.id = null;
+                    document.getElementById('placeholder-screen').style.display = 'flex';
+                    document.getElementById('active-editor-screen').style.display = 'none';
+                }
+                
                 renderLists();
+                refreshActiveEditor();
             }
         }
 
@@ -845,50 +1013,65 @@
                 Object.values(state.groups).forEach(g => {
                     if (g.members) g.members = g.members.filter(m => m !== uuid);
                 });
+                
+                if (currentEditor.type === 'user' && currentEditor.id === uuid) {
+                    currentEditor.type = null;
+                    currentEditor.id = null;
+                    document.getElementById('placeholder-screen').style.display = 'flex';
+                    document.getElementById('active-editor-screen').style.display = 'none';
+                }
+                
                 renderLists();
+                refreshActiveEditor();
             }
         }
 
-        // Open specific modal editors
+        // Open active inline editors
         function openGroupEditor(name) {
             currentEditor.type = 'group';
             currentEditor.id = name;
             
-            document.getElementById('modal-title').innerText = `Group Settings: ${name}`;
-            document.getElementById('groups-field-section').style.display = 'flex';
-            document.getElementById('modal-field-label').innerText = 'Group Members (UUIDs)';
-            document.getElementById('group-add-input').placeholder = 'Type player UUID to add...';
+            switchTab('groups');
+            
+            document.getElementById('placeholder-screen').style.display = 'none';
+            document.getElementById('active-editor-screen').style.display = 'flex';
+            
+            document.getElementById('active-editor-title').innerText = name;
+            document.getElementById('active-editor-badge').innerText = 'Group';
+            document.getElementById('active-editor-badge').style.backgroundColor = 'var(--primary)';
             
             const g = state.groups[name] || {};
-            document.getElementById('group-meta-section').style.display = 'flex';
+            document.getElementById('group-metadata-row').style.display = 'flex';
             document.getElementById('group-prefix-input').value = g.prefix || '';
             document.getElementById('group-weight-input').value = g.weight || 0;
             
-            refreshModalTags();
-            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('associations-label').innerText = 'Group Members (UUIDs)';
+            document.getElementById('group-add-input').placeholder = 'Type player UUID to add...';
+            
+            refreshActiveEditor();
+            renderLists();
         }
 
         function openUserEditor(uuid) {
             currentEditor.type = 'user';
             currentEditor.id = uuid;
 
-            document.getElementById('modal-title').innerText = `Player Settings: ${uuid}`;
-            document.getElementById('groups-field-section').style.display = 'flex';
-            document.getElementById('modal-field-label').innerText = 'Assigned Groups';
+            switchTab('players');
+
+            document.getElementById('placeholder-screen').style.display = 'none';
+            document.getElementById('active-editor-screen').style.display = 'flex';
+            
+            document.getElementById('active-editor-title').innerText = uuid;
+            document.getElementById('active-editor-badge').innerText = 'Player';
+            document.getElementById('active-editor-badge').style.backgroundColor = 'var(--success)';
+
+            document.getElementById('group-metadata-row').style.display = 'none';
+
+            document.getElementById('associations-label').innerText = 'Assigned Groups';
             document.getElementById('group-add-input').placeholder = 'Type group to assign...';
 
-            document.getElementById('group-meta-section').style.display = 'none';
-
-            refreshModalTags();
-            document.getElementById('modal-overlay').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modal-overlay').classList.remove('active');
-            document.getElementById('group-autocomplete').classList.remove('active');
-            document.getElementById('perm-autocomplete').classList.remove('active');
-            document.getElementById('group-add-input').value = '';
-            document.getElementById('perm-add-input').value = '';
+            refreshActiveEditor();
+            renderLists();
         }
 
         function updateGroupMeta() {
@@ -902,80 +1085,96 @@
             }
         }
 
-        // Render pills/badges in modals
-        function refreshModalTags() {
-            const grpsWrapper = document.getElementById('modal-groups-tags');
-            const permsWrapper = document.getElementById('modal-perms-tags');
-            grpsWrapper.innerHTML = '';
-            permsWrapper.innerHTML = '';
-
+        // Render contents dynamically inside active inline panels
+        function refreshActiveEditor() {
+            const permsList = document.getElementById('active-perms-list');
+            const assocList = document.getElementById('active-associations-list');
+            permsList.innerHTML = '';
+            assocList.innerHTML = '';
+            
+            if (!currentEditor.id) return;
+            
             if (currentEditor.type === 'group') {
                 const g = state.groups[currentEditor.id];
+                if (!g) return;
                 
-                // Render members
-                if (g.members) {
-                    g.members.forEach(member => {
-                        const tag = document.createElement('span');
-                        tag.className = 'tag';
-                        tag.innerHTML = `
-                            ${member}
-                            <span class="tag-remove" onclick="removeMemberTag('${member}')">&times;</span>
+                // Permissions Nodes
+                const perms = g.permissions || [];
+                document.getElementById('active-perms-count').innerText = perms.length;
+                if (perms.length === 0) {
+                    permsList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No permission nodes assigned.</div>';
+                } else {
+                    perms.forEach(perm => {
+                        const row = document.createElement('div');
+                        row.className = 'perms-row';
+                        row.innerHTML = `
+                            <span class="perms-node">${perm}</span>
+                            <button class="delete-btn-sm" onclick="removePermTag('${perm}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
                         `;
-                        grpsWrapper.appendChild(tag);
+                        permsList.appendChild(row);
                     });
                 }
                 
-                // Render permissions
-                if (g.permissions) {
-                    g.permissions.forEach(perm => {
-                        const tag = document.createElement('span');
-                        tag.className = 'tag';
-                        tag.innerHTML = `
-                            ${perm}
-                            <span class="tag-remove" onclick="removePermTag('${perm}')">&times;</span>
-                        `;
-                        permsWrapper.appendChild(tag);
-                    });
-                }
+                // Group Members
+                const members = g.members || [];
+                document.getElementById('active-associations-count').innerText = members.length;
+                members.forEach(member => {
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.innerHTML = `
+                        <span style="font-family: monospace; font-size: 0.75rem;">${member}</span>
+                        <span class="tag-remove" onclick="removeMemberTag('${member}')">&times;</span>
+                    `;
+                    assocList.appendChild(tag);
+                });
             } else if (currentEditor.type === 'user') {
                 const u = state.users[currentEditor.id];
-
-                // Render groups
-                if (u.groups) {
-                    u.groups.forEach(gName => {
-                        const tag = document.createElement('span');
-                        tag.className = 'tag';
-                        tag.innerHTML = `
-                            ${gName}
-                            <span class="tag-remove" onclick="removeGroupTag('${gName}')">&times;</span>
+                if (!u) return;
+                
+                // Permissions Nodes
+                const perms = u.permissions || [];
+                document.getElementById('active-perms-count').innerText = perms.length;
+                if (perms.length === 0) {
+                    permsList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No permission nodes assigned.</div>';
+                } else {
+                    perms.forEach(perm => {
+                        const row = document.createElement('div');
+                        row.className = 'perms-row';
+                        row.innerHTML = `
+                            <span class="perms-node">${perm}</span>
+                            <button class="delete-btn-sm" onclick="removePermTag('${perm}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
                         `;
-                        grpsWrapper.appendChild(tag);
+                        permsList.appendChild(row);
                     });
                 }
-
-                // Render permissions
-                if (u.permissions) {
-                    u.permissions.forEach(perm => {
-                        const tag = document.createElement('span');
-                        tag.className = 'tag';
-                        tag.innerHTML = `
-                            ${perm}
-                            <span class="tag-remove" onclick="removePermTag('${perm}')">&times;</span>
-                        `;
-                        permsWrapper.appendChild(tag);
-                    });
-                }
+                
+                // Assigned Groups
+                const userGroups = u.groups || [];
+                document.getElementById('active-associations-count').innerText = userGroups.length;
+                userGroups.forEach(gName => {
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.innerHTML = `
+                        <span>${gName}</span>
+                        <span class="tag-remove" onclick="removeGroupTag('${gName}')">&times;</span>
+                    `;
+                    assocList.appendChild(tag);
+                });
             }
         }
 
-        // Pills addition and removal modifications
+        // Tag addition and removal
         function removeGroupTag(name) {
             const u = state.users[currentEditor.id];
             u.groups = u.groups.filter(g => g !== name);
             if (state.groups[name] && state.groups[name].members) {
                 state.groups[name].members = state.groups[name].members.filter(m => m !== currentEditor.id);
             }
-            refreshModalTags();
+            refreshActiveEditor();
             renderLists();
         }
 
@@ -985,7 +1184,7 @@
             if (state.users[uuid] && state.users[uuid].groups) {
                 state.users[uuid].groups = state.users[uuid].groups.filter(g => g !== currentEditor.id);
             }
-            refreshModalTags();
+            refreshActiveEditor();
             renderLists();
         }
 
@@ -997,7 +1196,7 @@
                 const u = state.users[currentEditor.id];
                 u.permissions = u.permissions.filter(p => p !== perm);
             }
-            refreshModalTags();
+            refreshActiveEditor();
             renderLists();
         }
 
@@ -1026,7 +1225,7 @@
                 }
             }
             input.value = '';
-            refreshModalTags();
+            refreshActiveEditor();
             renderLists();
             document.getElementById('group-autocomplete').classList.remove('active');
         }
@@ -1046,7 +1245,7 @@
                 if (!u.permissions.includes(val)) u.permissions.push(val);
             }
             input.value = '';
-            refreshModalTags();
+            refreshActiveEditor();
             renderLists();
             document.getElementById('perm-autocomplete').classList.remove('active');
         }
