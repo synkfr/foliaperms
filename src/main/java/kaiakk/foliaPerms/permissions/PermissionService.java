@@ -67,6 +67,9 @@ public class PermissionService {
             Map<String, GroupData> loadedGroups = storage.loadGroups();
             users.putAll(loadedUsers);
             groups.putAll(loadedGroups);
+            if (!groups.containsKey("default")) {
+                groups.put("default", new GroupData("default"));
+            }
             plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from storage backend.");
             if (!users.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
@@ -103,6 +106,9 @@ public class PermissionService {
                     groups.clear();
                     users.putAll(loadedUsers);
                     groups.putAll(loadedGroups);
+                    if (!groups.containsKey("default")) {
+                        groups.put("default", new GroupData("default"));
+                    }
                     plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from storage backend.");
                     if (callback != null) {
                         try { callback.run(); } catch (Throwable t) { kaiakk.foliaPerms.internal.ErrorHandler.handle(plugin, "Exception in load callback", t); }
@@ -167,10 +173,15 @@ public class PermissionService {
      */
     public List<String> getRegisteredPermissionsSorted() {
         if (cachedSortedPermissions == null) {
-            cachedSortedPermissions = registeredPermissions.stream()
-                .filter(p -> p != null && !p.isBlank())
-                .sorted(String.CASE_INSENSITIVE_ORDER)
-                .collect(Collectors.toList());
+            try {
+                cachedSortedPermissions = registeredPermissions.stream()
+                    .filter(p -> p != null && !p.isBlank())
+                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                    .collect(Collectors.toList());
+            } catch (Throwable t) {
+                plugin.getLogger().warning("Failed to sort registered permissions: " + t.getMessage());
+                cachedSortedPermissions = new java.util.ArrayList<>();
+            }
         }
         return cachedSortedPermissions;
     }

@@ -50,7 +50,6 @@ public class PlayerListener implements Listener {
         }
         
         // Apply default group if first-time or groupless player joins (double-check fallback)
-        boolean assignedDefault = false;
         try {
             var service = plugin.getPermissionService();
             if (service != null) {
@@ -58,7 +57,6 @@ public class PlayerListener implements Listener {
                 if (userData == null || userData.getGroups().isEmpty()) {
                     service.addUserToGroup(player.getUniqueId(), "default");
                     service.saveAsync();
-                    assignedDefault = true;
                     plugin.getLogger().info("Automatically assigned default group to first-time/groupless player " + player.getName() + " on join.");
                 }
             }
@@ -66,14 +64,12 @@ public class PlayerListener implements Listener {
             plugin.getLogger().warning("Failed to automatically assign default group to " + player.getName() + " on join: " + e.getMessage());
         }
         
-        // Apply permission attachment if not already applied via addUserToGroup
-        if (!assignedDefault) {
-            try {
-                plugin.refreshPlayerAttachment(player);
-                plugin.getLogger().fine("Applied permission attachment for " + player.getName());
-            } catch (Exception e) {
-                plugin.getLogger().warning("Failed to apply permissions to " + player.getName() + ": " + e.getMessage());
-            }
+        // Always apply/refresh permissions attachment on join to guarantee standard injection works perfectly
+        try {
+            plugin.refreshPlayerAttachment(player);
+            plugin.getLogger().fine("Applied permission attachment for " + player.getName());
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to apply permissions to " + player.getName() + ": " + e.getMessage());
         }
     }
 

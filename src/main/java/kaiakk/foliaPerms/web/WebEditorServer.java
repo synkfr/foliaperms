@@ -147,6 +147,8 @@ public class WebEditorServer {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+        exchange.getResponseHeaders().set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        exchange.getResponseHeaders().set("Pragma", "no-cache");
         
         exchange.sendResponseHeaders(status, content.length);
         try (OutputStream os = exchange.getResponseBody()) {
@@ -249,10 +251,10 @@ public class WebEditorServer {
 
                 byte[] content = json.toString().getBytes(StandardCharsets.UTF_8);
                 sendResponse(exchange, 200, "application/json", content);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 plugin.getLogger().severe("Failed to serialize permissions payload: " + e.getMessage());
                 e.printStackTrace();
-                byte[] response = "{\"error\":\"Internal Server Error\"}".getBytes(StandardCharsets.UTF_8);
+                byte[] response = ("{\"error\":\"Internal Server Error\",\"message\":\"" + e.getMessage() + "\"}").getBytes(StandardCharsets.UTF_8);
                 sendResponse(exchange, 500, "application/json", response);
             }
         }
@@ -347,7 +349,7 @@ public class WebEditorServer {
 
                 byte[] success = "{\"success\":true}".getBytes(StandardCharsets.UTF_8);
                 sendResponse(exchange, 200, "application/json", success);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 plugin.getLogger().severe("Failed to parse and save Web Editor payloads: " + e.getMessage());
                 e.printStackTrace();
                 byte[] error = ("{\"error\":\"Internal Server Error\",\"message\":\"" + e.getMessage() + "\"}").getBytes(StandardCharsets.UTF_8);

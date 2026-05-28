@@ -60,6 +60,7 @@ public class FpermCommand implements CommandExecutor {
                     send(sender, ColorConverter.colorize("&e/fperm listperms <player> &7- List player's allowed permissions"));
                     send(sender, ColorConverter.colorize("&e/fperm user addperm|removeperm <player> <perm> &7- Modify player's permissions"));
                     send(sender, ColorConverter.colorize("&e/fperm user addgroup|removegroup <player> <group> &7- Modify player's groups"));
+                    send(sender, ColorConverter.colorize("&e/fperm user info <player> &7- View player's detailed permissions and groups"));
                     send(sender, ColorConverter.colorize("&e/fperm group create <name> &7- Create a new group"));
                     send(sender, ColorConverter.colorize("&e/fperm group addperm|removeperm <name> <perm> &7- Modify group's permissions"));
                     send(sender, ColorConverter.colorize("&e/fperm group adduser|removeuser <name> <player> &7- Modify group members"));

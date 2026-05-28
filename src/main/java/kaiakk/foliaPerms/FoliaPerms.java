@@ -267,13 +267,16 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
     public Set<String> getPlayerGroups(Player player) {
         if (player == null || this.permissionService == null) return Collections.emptySet();
         var ud = this.permissionService.getUser(player.getUniqueId());
-        if (ud == null) return Collections.emptySet();
+        if (ud == null || ud.getGroups().isEmpty()) {
+            return Collections.singleton("default");
+        }
         return Collections.unmodifiableSet(new HashSet<>(ud.getGroups()));
     }
 
     @Override
     public String getPrimaryGroup(Player player) {
-        if (player == null || this.permissionService == null) return null;
-        return this.permissionService.getPlayerPrimaryGroup(player.getUniqueId());
+        if (player == null || this.permissionService == null) return "default";
+        String group = this.permissionService.getPlayerPrimaryGroup(player.getUniqueId());
+        return group != null ? group : "default";
     }
 }

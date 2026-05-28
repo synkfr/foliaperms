@@ -47,35 +47,17 @@
 - [x] Incorporate weight/prefix configurations inside Web Editor server and UI modal inputs
 - [x] Compile and verify using `bash gradlew build`
 
-## Bug Fixes
-- [x] Fix PlaceholderAPI hook not registering due to STARTUP load order (register dynamically on PluginEnableEvent)
-- [x] Fix web editor session expiration and loss of session on reload/restart (increase session length to 3 hours, persist tokens to sessions.yml)
-- [x] Fix web editor "Session may be expired" popup showing on successful loads due to a silent GSON serialization error in `ApiDataHandler` (handled null/blank permission name sorting and wrapped in GSON try-catch logger blocks)
-- [x] Fix default group not getting auto-assigned to groupless or first-time players due to late `PlayerJoinEvent` sequencing (listened to `PlayerLoginEvent` at `LOWEST` priority to intercept and assign early before other plugins check groups)
-
 ## User Info Subcommand Feature
 - [x] Add `/fperm user info <player>` subcommand with beautiful, formatted output listing UUID, Primary Group (Weight), Prefix, Assigned Groups, and individual permission node tags
 - [x] Integrate `/fperm user info` subcommand tab-completion inside `FpermTabCompleter`
 - [x] Compile and verify using `bash gradlew build`
 
-## Implementation & Verification Review
-
-### 1. Group Weight & Prefix Data Hierarchy
-- **Properties**: Supported `weight` (int) and `prefix` (String) inside `GroupData`.
-- **YAML Storage**: Handled non-destructive key loading and writing in `YamlStorage.java`.
-- **SQL Storage**: Dynamically run schema migration `ALTER TABLE foliaperms_groups ADD COLUMN weight INT DEFAULT 0` and `prefix VARCHAR(255) DEFAULT ''` inside a safe SQLite/MySQL block in `SqlPermStorage.java`.
-
-### 2. Service Resolvers & PlaceholderAPI Hooks
-- **Prefix Resolution**: Exposes `PermissionService.getPlayerPrefix(UUID)` resolving weight-prioritized prefix with a fallback to the `default` group.
-- **Primary Group**: Exposes `PermissionService.getPlayerPrimaryGroup(UUID)` resolving group with the highest weight.
-- **PlaceholderAPI Hooks**: Created and dynamically registered `FoliaPermsExpansion` to parse `%foliaperms_prefix%`, `%foliaperms_primary_group%`, and `%foliaperms_group%`.
-
-### 3. Web Editor Inputs & Live Synchronization
-- **UI Element**: Rendered minimalist Zinc-themed Group Prefix & Weight inputs inside `group-meta-section` of the modal body in `editor.html`.
-- **Live Sync**: Integrated active listener `updateGroupMeta()` executing real-time local model updates and flat tag list rerendering.
-- **JSON Serialization**: Configured `WebEditorServer.java` payload parser to read and persist weight/prefix inputs.
-- **Aesthetic**: Slate-colored minimal flat borders, no gradients, matching the premium Obsidian aesthetic.
-
-### 4. Build Compilation
-- Executed `bash gradlew build` and confirmed the artifact compiles and packages flawlessly.
-
+## Bug Fixes & Refinements - Session Expired & Default Group
+- [x] Add `Cache-Control` and `Pragma` headers in `WebEditorServer.java`'s `sendResponse` to disable browser cache on API requests.
+- [x] Refactor `ApiDataHandler` and `ApiSaveHandler` in `WebEditorServer.java` to catch `Throwable` instead of `Exception`, logging all severe tracebacks.
+- [x] Add try-catch protection around the stream sorting block inside `PermissionService.java`'s `getRegisteredPermissionsSorted()`.
+- [x] Refactor `getPlayerGroups(Player)` and `getPrimaryGroup(Player)` fallbacks in `FoliaPerms.java` to fully resolve groupless players as `"default"`.
+- [x] Guarantee `"default"` group exists in the groups cache map on `load()` and `loadAsync()` in `PermissionService.java`.
+- [x] Ensure that `PlayerListener.java` always triggers permission attachment refresh on join, even if assigning the default group.
+- [x] Incorporate `/fperm user info <player>` into the `/fperm help` output in `FpermCommand.java`.
+- [x] Compile and verify using `bash gradlew build`.
