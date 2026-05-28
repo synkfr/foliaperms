@@ -500,4 +500,50 @@ public class PermissionService {
     public Map<String, GroupData> getGroups() {
         return groups;
     }
+
+    public String getPlayerPrefix(UUID id) {
+        UserData ud = users.get(id);
+        String prefix = "";
+        int highestWeight = Integer.MIN_VALUE;
+        
+        if (ud != null && !ud.getGroups().isEmpty()) {
+            for (String groupName : ud.getGroups()) {
+                GroupData gd = groups.get(groupName.toLowerCase());
+                if (gd != null) {
+                    if (gd.getWeight() > highestWeight || prefix.isEmpty()) {
+                        highestWeight = gd.getWeight();
+                        prefix = gd.getPrefix();
+                    }
+                }
+            }
+        } else {
+            // Fallback to "default" group if player has no groups explicitly assigned
+            GroupData gd = groups.get("default");
+            if (gd != null) {
+                prefix = gd.getPrefix();
+            }
+        }
+        
+        return prefix == null ? "" : prefix;
+    }
+
+    public String getPlayerPrimaryGroup(UUID id) {
+        UserData ud = users.get(id);
+        String primaryGroup = null;
+        int highestWeight = Integer.MIN_VALUE;
+        
+        if (ud != null && !ud.getGroups().isEmpty()) {
+            for (String groupName : ud.getGroups()) {
+                GroupData gd = groups.get(groupName.toLowerCase());
+                if (gd != null) {
+                    if (gd.getWeight() > highestWeight || primaryGroup == null) {
+                        highestWeight = gd.getWeight();
+                        primaryGroup = gd.getName();
+                    }
+                }
+            }
+        }
+        
+        return primaryGroup != null ? primaryGroup : "default";
+    }
 }

@@ -88,8 +88,19 @@ public class SqlPermStorage implements PermStorage {
 
             // Create group tables
             st.executeUpdate("CREATE TABLE IF NOT EXISTS foliaperms_groups (" +
-                    "name VARCHAR(64) PRIMARY KEY" +
+                    "name VARCHAR(64) PRIMARY KEY, " +
+                    "weight INT DEFAULT 0, " +
+                    "prefix VARCHAR(255) DEFAULT ''" +
                     ")");
+            
+            // Alter table dynamically to add weight and prefix columns if they don't exist
+            try {
+                st.executeUpdate("ALTER TABLE foliaperms_groups ADD COLUMN weight INT DEFAULT 0");
+            } catch (Exception ignored) {}
+            try {
+                st.executeUpdate("ALTER TABLE foliaperms_groups ADD COLUMN prefix VARCHAR(255) DEFAULT ''");
+            } catch (Exception ignored) {}
+
             st.executeUpdate("CREATE TABLE IF NOT EXISTS foliaperms_group_permissions (" +
                     "group_name VARCHAR(64), " +
                     "permission VARCHAR(255), " +
@@ -156,11 +167,15 @@ public class SqlPermStorage implements PermStorage {
         Connection c = getConnection();
 
         try (Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery("SELECT name FROM foliaperms_groups")) {
+             ResultSet rs = st.executeQuery("SELECT name, weight, prefix FROM foliaperms_groups")) {
             while (rs.next()) {
                 String name = rs.getString("name");
                 if (name != null) {
-                    map.put(name.toLowerCase(), new GroupData(name));
+                    GroupData gd = new GroupData(name);
+                    gd.setWeight(rs.getInt("weight"));
+                    String prefix = rs.getString("prefix");
+                    gd.setPrefix(prefix != null ? prefix : "");
+                    map.put(name.toLowerCase(), gd);
                 }
             }
         }
@@ -210,12 +225,14 @@ public class SqlPermStorage implements PermStorage {
             }
 
             // Save groups
-            try (PreparedStatement insertGroup = c.prepareStatement("INSERT INTO foliaperms_groups (name) VALUES (?)");
+            try (PreparedStatement insertGroup = c.prepareStatement("INSERT INTO foliaperms_groups (name, weight, prefix) VALUES (?, ?, ?)");
                  PreparedStatement insertGroupPerm = c.prepareStatement("INSERT INTO foliaperms_group_permissions (group_name, permission) VALUES (?, ?)");
                  PreparedStatement insertGroupMember = c.prepareStatement("INSERT INTO foliaperms_group_members (group_name, uuid) VALUES (?, ?)")) {
                  
                 for (GroupData g : groups.values()) {
                     insertGroup.setString(1, g.getName());
+                    insertGroup.setInt(2, g.getWeight());
+                    insertGroup.setString(3, g.getPrefix());
                     insertGroup.addBatch();
 
                     for (String perm : g.getPermissions()) {

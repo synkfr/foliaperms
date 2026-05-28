@@ -112,6 +112,8 @@ public class YamlStorage {
                         gd.addMember(String.valueOf(o));
                     }
                 }
+                gd.setWeight(cfg.getInt("groups." + key + ".weight", 0));
+                gd.setPrefix(cfg.getString("groups." + key + ".prefix", ""));
                 groups.put(key.toLowerCase(), gd);
             }
             
@@ -143,6 +145,8 @@ public class YamlStorage {
                 String path = "groups." + key;
                 cfg.set(path + ".permissions", e.getValue().getPermissions().stream().toList());
                 cfg.set(path + ".members", e.getValue().getMembers().stream().toList());
+                cfg.set(path + ".weight", e.getValue().getWeight());
+                cfg.set(path + ".prefix", e.getValue().getPrefix());
             }
 
             cfg.save(file);
