@@ -50,6 +50,13 @@
 ## Bug Fixes
 - [x] Fix PlaceholderAPI hook not registering due to STARTUP load order (register dynamically on PluginEnableEvent)
 - [x] Fix web editor session expiration and loss of session on reload/restart (increase session length to 3 hours, persist tokens to sessions.yml)
+- [x] Fix web editor "Session may be expired" popup showing on successful loads due to a silent GSON serialization error in `ApiDataHandler` (handled null/blank permission name sorting and wrapped in GSON try-catch logger blocks)
+- [x] Fix default group not getting auto-assigned to groupless or first-time players due to late `PlayerJoinEvent` sequencing (listened to `PlayerLoginEvent` at `LOWEST` priority to intercept and assign early before other plugins check groups)
+
+## User Info Subcommand Feature
+- [x] Add `/fperm user info <player>` subcommand with beautiful, formatted output listing UUID, Primary Group (Weight), Prefix, Assigned Groups, and individual permission node tags
+- [x] Integrate `/fperm user info` subcommand tab-completion inside `FpermTabCompleter`
+- [x] Compile and verify using `bash gradlew build`
 
 ## Implementation & Verification Review
 

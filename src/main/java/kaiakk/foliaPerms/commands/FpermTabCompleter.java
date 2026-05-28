@@ -34,7 +34,7 @@ public class FpermTabCompleter implements TabCompleter {
         String sub = args[0].toLowerCase();
         if (sub.equals("user")) {
             if (args.length == 2) {
-                String[] opts = new String[]{"addperm","removeperm","addgroup","removegroup"};
+                String[] opts = new String[]{"addperm","removeperm","addgroup","removegroup","info"};
                 for (String s : opts) if (s.startsWith(args[1].toLowerCase())) res.add(s);
                 return res;
             }

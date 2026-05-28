@@ -150,13 +150,19 @@ public class FpermCommand implements CommandExecutor {
                     }
                     break;
                 case "user":
-                    if (args.length < 4) {
-                        send(sender, ColorConverter.colorize("&eUsage: /fperm user addperm|removeperm|addgroup|removegroup <player> <perm|group>"));
+                    if (args.length < 3) {
+                        send(sender, ColorConverter.colorize("&eUsage: /fperm user addperm|removeperm|addgroup|removegroup|info <player> [perm|group]"));
                         break;
                     }
                     String action = args[1].toLowerCase();
                     String playerName = args[2];
-                    String perm = args[3];
+                    
+                    if (!action.equals("info") && args.length < 4) {
+                        send(sender, ColorConverter.colorize("&eUsage: /fperm user " + action + " <player> <perm|group>"));
+                        break;
+                    }
+                    
+                    String perm = args.length >= 4 ? args[3] : "";
                     try {
                         var op = Bukkit.getOfflinePlayer(playerName);
                         if (op == null) {
@@ -173,7 +179,39 @@ public class FpermCommand implements CommandExecutor {
                             break;
                         }
 
-                        if (action.equals("addperm")) {
+                        if (action.equals("info")) {
+                            var userData = service.getUser(id);
+                            String primaryGroup = service.getPlayerPrimaryGroup(id);
+                            String prefix = service.getPlayerPrefix(id);
+                            int weight = 0;
+                            var gd = service.getGroups().get(primaryGroup.toLowerCase());
+                            if (gd != null) {
+                                weight = gd.getWeight();
+                            }
+                            
+                            send(sender, ColorConverter.colorize("&8&l&m========================================"));
+                            send(sender, ColorConverter.colorize("&e&lFoliaPerms &7- &e&lUser Info: &f" + playerName));
+                            send(sender, ColorConverter.colorize("&eUUID: &7" + id.toString()));
+                            send(sender, ColorConverter.colorize("&ePrimary Group: &f" + primaryGroup + " &7(Weight: " + weight + ")"));
+                            send(sender, ColorConverter.colorize("&ePrefix: &f\"" + (prefix.isEmpty() ? "&7None" : prefix) + "&f\""));
+                            
+                            if (userData != null && !userData.getGroups().isEmpty()) {
+                                String groupsList = String.join(", ", userData.getGroups());
+                                send(sender, ColorConverter.colorize("&eAssigned Groups: &a" + groupsList));
+                            } else {
+                                send(sender, ColorConverter.colorize("&eAssigned Groups: &7default (fallback)"));
+                            }
+                            
+                            send(sender, ColorConverter.colorize("&ePermissions:"));
+                            if (userData != null && !userData.getPermissions().isEmpty()) {
+                                for (String p : userData.getPermissions()) {
+                                    send(sender, ColorConverter.colorize(" &7- &f" + p));
+                                }
+                            } else {
+                                send(sender, ColorConverter.colorize(" &7(None)"));
+                            }
+                            send(sender, ColorConverter.colorize("&8&l&m========================================"));
+                        } else if (action.equals("addperm")) {
                             service.addUserPermission(id, perm);
                             plugin.getPermissionService().saveAsync();
                             var onlineTarget = Bukkit.getPlayerExact(playerName);
