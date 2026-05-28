@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class PermissionService {
     private final JavaPlugin plugin;
-    private final YamlStorage storage;
+    private final PermStorage storage;
 
     private final Map<UUID, UserData> users = new ConcurrentHashMap<>();
     private final Map<String, GroupData> groups = new ConcurrentHashMap<>();
@@ -31,52 +31,87 @@ public class PermissionService {
 
     public PermissionService(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.storage = new YamlStorage(plugin);
+        
+        var config = plugin.getConfig();
+        String type = config.getString("storage.type", "yaml").toLowerCase();
+        
+        if ("sqlite".equals(type) || "mysql".equals(type)) {
+            String host = config.getString("storage.mysql.host", "localhost");
+            int port = config.getInt("storage.mysql.port", 3306);
+            String db = config.getString("storage.mysql.database", "foliaperms");
+            String user = config.getString("storage.mysql.username", "root");
+            String pass = config.getString("storage.mysql.password", "");
+            boolean ssl = config.getBoolean("storage.mysql.useSSL", false);
+            String sqlFile = config.getString("storage.sqlite.file", "permissions.db");
+            
+            plugin.getLogger().info("Initializing SQL storage backend (" + type + ")...");
+            this.storage = new SqlPermStorage(plugin, type, host, port, db, user, pass, ssl, sqlFile);
+        } else {
+            plugin.getLogger().info("Initializing YAML storage backend...");
+            this.storage = new YamlPermStorage(plugin);
+        }
+        
+        try {
+            this.storage.init();
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to initialize storage backend: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void load() {
         users.clear();
         groups.clear();
-        Map<UUID, UserData> loadedUsers = storage.loadUsers();
-        Map<String, GroupData> loadedGroups = storage.loadGroups();
-        users.putAll(loadedUsers);
-        groups.putAll(loadedGroups);
-        plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from permissions.yml");
-        if (!users.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            int count = 0;
-            for (UUID id : users.keySet()) {
-                if (count++ < 5) sb.append(id.toString()).append(", ");
+        try {
+            Map<UUID, UserData> loadedUsers = storage.loadUsers();
+            Map<String, GroupData> loadedGroups = storage.loadGroups();
+            users.putAll(loadedUsers);
+            groups.putAll(loadedGroups);
+            plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from storage backend.");
+            if (!users.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                int count = 0;
+                for (UUID id : users.keySet()) {
+                    if (count++ < 5) sb.append(id.toString()).append(", ");
+                }
+                if (users.size() > 5) sb.append("... and ").append(users.size() - 5).append(" more");
+                plugin.getLogger().fine("Loaded user UUIDs: " + sb.toString());
             }
-            if (users.size() > 5) sb.append("... and ").append(users.size() - 5).append(" more");
-            plugin.getLogger().fine("Loaded user UUIDs: " + sb.toString());
-        }
-        if (!groups.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            int count = 0;
-            for (String g : groups.keySet()) {
-                if (count++ < 5) sb.append(g).append(", ");
+            if (!groups.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                int count = 0;
+                for (String g : groups.keySet()) {
+                    if (count++ < 5) sb.append(g).append(", ");
+                }
+                if (groups.size() > 5) sb.append("... and ").append(groups.size() - 5).append(" more");
+                plugin.getLogger().fine("Loaded groups: " + sb.toString());
             }
-            if (groups.size() > 5) sb.append("... and ").append(groups.size() - 5).append(" more");
-            plugin.getLogger().fine("Loaded groups: " + sb.toString());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to load permissions from storage backend: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public void loadAsync(Runnable callback) {
         plugin.getLogger().info("Scheduling async permissions load (background thread)");
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            Map<UUID, UserData> loadedUsers = storage.loadUsers();
-            Map<String, GroupData> loadedGroups = storage.loadGroups();
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                users.clear();
-                groups.clear();
-                users.putAll(loadedUsers);
-                groups.putAll(loadedGroups);
-                plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from permissions.yml");
-                if (callback != null) {
-                    try { callback.run(); } catch (Throwable t) { kaiakk.foliaPerms.internal.ErrorHandler.handle(plugin, "Exception in load callback", t); }
-                }
-            });
+        org.bukkit.Bukkit.getAsyncScheduler().runNow(plugin, asyncTask -> {
+            try {
+                Map<UUID, UserData> loadedUsers = storage.loadUsers();
+                Map<String, GroupData> loadedGroups = storage.loadGroups();
+                org.bukkit.Bukkit.getGlobalRegionScheduler().run(plugin, syncTask -> {
+                    users.clear();
+                    groups.clear();
+                    users.putAll(loadedUsers);
+                    groups.putAll(loadedGroups);
+                    plugin.getLogger().info("Loaded " + users.size() + " users and " + groups.size() + " groups from storage backend.");
+                    if (callback != null) {
+                        try { callback.run(); } catch (Throwable t) { kaiakk.foliaPerms.internal.ErrorHandler.handle(plugin, "Exception in load callback", t); }
+                    }
+                });
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to load permissions asynchronously: " + e.getMessage());
+                e.printStackTrace();
+            }
         });
     }
 
@@ -145,14 +180,44 @@ public class PermissionService {
 
     public java.util.Set<String> getAllowedPermissions(UUID id) {
         var result = new java.util.HashSet<String>();
+        // 1. Gather all registered permissions that the user has (handles wildcards for registered perms)
         for (String node : registeredPermissions) {
             if (hasPermission(id, node)) result.add(node);
+        }
+        // 2. Proactively add all directly assigned permissions and their groups' permissions (handles unregistered perms)
+        UserData ud = users.get(id);
+        if (ud != null) {
+            result.addAll(ud.getPermissions());
+            if (!ud.getGroups().isEmpty()) {
+                for (String groupName : ud.getGroups()) {
+                    GroupData gd = groups.get(groupName.toLowerCase());
+                    if (gd != null) {
+                        result.addAll(gd.getPermissions());
+                    }
+                }
+            } else {
+                // Fallback to "default" group permissions if player has no groups explicitly assigned
+                GroupData gd = groups.get("default");
+                if (gd != null) {
+                    result.addAll(gd.getPermissions());
+                }
+            }
+        } else {
+            // Fallback to "default" group permissions if player has no profile loaded yet
+            GroupData gd = groups.get("default");
+            if (gd != null) {
+                result.addAll(gd.getPermissions());
+            }
         }
         return result;
     }
 
     public void save() throws IOException {
-        storage.save(users, groups);
+        try {
+            storage.save(users, groups);
+        } catch (Exception e) {
+            throw new IOException("Failed to save permissions: " + e.getMessage(), e);
+        }
     }
 
     public void saveAsync() {
@@ -178,11 +243,11 @@ public class PermissionService {
 
         plugin.getLogger().fine("Scheduling async permissions save.");
         try {
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            org.bukkit.Bukkit.getAsyncScheduler().runNow(plugin, asyncTask -> {
                 try {
                     storage.save(usersSnapshot, groupsSnapshot);
                     plugin.getLogger().fine("Async save completed successfully.");
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     plugin.getLogger().severe("Async save failed: " + ex.getMessage());
                 }
             });
@@ -192,12 +257,23 @@ public class PermissionService {
                 try {
                     storage.save(usersSnapshot, groupsSnapshot);
                     plugin.getLogger().fine("Background thread save completed.");
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     plugin.getLogger().severe("Async save failed: " + ex.getMessage());
                 }
             }, "FoliaPerms-Save");
             thr.setDaemon(true);
             thr.start();
+        }
+    }
+
+    public void close() {
+        if (storage != null) {
+            try {
+                storage.close();
+                plugin.getLogger().info("Closed storage backend connections.");
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error closing storage backend: " + e.getMessage());
+            }
         }
     }
 
@@ -221,12 +297,10 @@ public class PermissionService {
                 var fp = (FoliaPerms) plugin;
                 var player = fp.getServer().getPlayer(id);
                 if (player != null) {
-                    if (Bukkit.isPrimaryThread()) {
+                    if (Bukkit.isOwnedByCurrentRegion(player)) {
                         fp.refreshPlayerAttachment(player);
                     } else {
-                        try {
-                            plugin.getServer().getScheduler().runTask(plugin, () -> fp.refreshPlayerAttachment(player));
-                        } catch (Throwable ignored) {}
+                        player.getScheduler().run(plugin, task -> fp.refreshPlayerAttachment(player), null);
                     }
                 }
             }
@@ -242,12 +316,10 @@ public class PermissionService {
                 var fp = (FoliaPerms) plugin;
                 var player = fp.getServer().getPlayer(id);
                 if (player != null) {
-                    if (Bukkit.isPrimaryThread()) {
+                    if (Bukkit.isOwnedByCurrentRegion(player)) {
                         fp.refreshPlayerAttachment(player);
                     } else {
-                        try {
-                            plugin.getServer().getScheduler().runTask(plugin, () -> fp.refreshPlayerAttachment(player));
-                        } catch (Throwable ignored) {}
+                        player.getScheduler().run(plugin, task -> fp.refreshPlayerAttachment(player), null);
                     }
                 }
             }
@@ -274,8 +346,7 @@ public class PermissionService {
         plugin.getLogger().info("Added group permission '" + normalized + "' to group " + name);
         try {
             if (plugin instanceof FoliaPerms) {
-                JavaPlugin p = plugin;
-                plugin.getServer().getScheduler().runTask(p, () -> {
+                org.bukkit.Bukkit.getGlobalRegionScheduler().run(plugin, task -> {
                     var fp = (FoliaPerms) plugin;
                     fp.refreshAllAttachments();
                 });
@@ -291,12 +362,15 @@ public class PermissionService {
         gd.addMember(id.toString());
         try {
             if (plugin instanceof FoliaPerms) {
-                JavaPlugin p = plugin;
-                plugin.getServer().getScheduler().runTask(p, () -> {
-                    var fp = (FoliaPerms) plugin;
-                    var player = fp.getServer().getPlayer(id);
-                    if (player != null) fp.refreshPlayerAttachment(player);
-                });
+                var fp = (FoliaPerms) plugin;
+                var player = fp.getServer().getPlayer(id);
+                if (player != null) {
+                    if (Bukkit.isOwnedByCurrentRegion(player)) {
+                        fp.refreshPlayerAttachment(player);
+                    } else {
+                        player.getScheduler().run(plugin, task -> fp.refreshPlayerAttachment(player), null);
+                    }
+                }
             }
         } catch (Throwable ignored) {}
     }
@@ -311,35 +385,71 @@ public class PermissionService {
         plugin.getLogger().info("Removed user " + id + " from group " + group);
         try {
             if (plugin instanceof FoliaPerms) {
-                JavaPlugin p = plugin;
-                plugin.getServer().getScheduler().runTask(p, () -> {
-                    var fp = (FoliaPerms) plugin;
-                    var player = fp.getServer().getPlayer(id);
-                    if (player != null) fp.refreshPlayerAttachment(player);
-                });
+                var fp = (FoliaPerms) plugin;
+                var player = fp.getServer().getPlayer(id);
+                if (player != null) {
+                    if (Bukkit.isOwnedByCurrentRegion(player)) {
+                        fp.refreshPlayerAttachment(player);
+                    } else {
+                        player.getScheduler().run(plugin, task -> fp.refreshPlayerAttachment(player), null);
+                    }
+                }
             }
         } catch (Throwable ignored) {}
     }
 
     /**
+     * Helper method to check wildcard permission patterns.
+     */
+    private boolean checkWildcard(java.util.Collection<String> permissions, String node) {
+        if (permissions == null || node == null) return false;
+        if (permissions.contains("*")) return true;
+        String normalizedNode = node.toLowerCase();
+        for (String perm : permissions) {
+            if (perm.endsWith(".*")) {
+                String prefix = perm.substring(0, perm.length() - 1); // e.g., "mcmmo."
+                if (normalizedNode.startsWith(prefix)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Checks if a player has a permission.
-     * Supports wildcard permissions (e.g., "plugin.*")
+     * Supports wildcard permissions (e.g., "plugin.*") and server operators (OPs).
      */
     public boolean hasPermission(UUID id, String node) {
         if (node == null) return false;
         String normalized = node.toLowerCase();
+
+        // Give Minecraft Operators (OPs) full permissions by default
+        org.bukkit.OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(id);
+        if (offlinePlayer != null && offlinePlayer.isOp()) {
+            return true;
+        }
+
         UserData ud = users.get(id);
         if (ud != null) {
             // Direct permission check
             if (ud.getPermissions().contains(normalized)) return true;
             
             // Wildcard check
-            if (ud.getPermissions().contains(normalized + ".*")) return true;
+            if (checkWildcard(ud.getPermissions(), normalized)) return true;
             
             // Check groups
-            for (String g : ud.getGroups()) {
-                if (checkGroupPermission(g, normalized)) return true;
+            if (!ud.getGroups().isEmpty()) {
+                for (String g : ud.getGroups()) {
+                    if (checkGroupPermission(g, normalized)) return true;
+                }
+            } else {
+                // Fallback to "default" group if player has no groups explicitly assigned
+                if (checkGroupPermission("default", normalized)) return true;
             }
+        } else {
+            // Fallback to "default" group if player has no profile loaded yet
+            if (checkGroupPermission("default", normalized)) return true;
         }
         return false;
     }
@@ -351,7 +461,7 @@ public class PermissionService {
         GroupData gd = groups.get(groupName.toLowerCase());
         if (gd != null) {
             if (gd.getPermissions().contains(node)) return true;
-            if (gd.getPermissions().contains(node + ".*")) return true;
+            if (checkWildcard(gd.getPermissions(), node)) return true;
         }
         return false;
     }
@@ -375,7 +485,7 @@ public class PermissionService {
         plugin.getLogger().info("Removed permission '" + node + "' from group " + name);
         try {
             if (plugin instanceof FoliaPerms) {
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                org.bukkit.Bukkit.getGlobalRegionScheduler().run(plugin, task -> {
                     var fp = (FoliaPerms) plugin;
                     fp.refreshAllAttachments();
                 });
