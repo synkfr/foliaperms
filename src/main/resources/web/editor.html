@@ -4,39 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoliaPerms Editor Panel</title>
-    <!-- Premium Google Fonts -->
+    <!-- Google Fonts - Inter & Outfit for premium look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #0a0616 100%);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.06);
-            --glass-hover: rgba(255, 255, 255, 0.07);
-            --primary: #8a2be2;
-            --primary-glow: rgba(138, 43, 226, 0.4);
-            --accent: #00f2fe;
-            --accent-glow: rgba(0, 242, 254, 0.4);
-            --text: #e0dcf5;
-            --text-muted: #9b95c0;
-            --danger: #ff4757;
-            --success: #2ed573;
-            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --bg: #09090b;
+            --panel: #18181b;
+            --border: #27272a;
+            --border-hover: #3f3f46;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --pill-bg: #27272a;
+            --input-bg: #09090b;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-display: 'Outfit', var(--font-main);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) transparent;
+            font-family: var(--font-main);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            background: var(--bg-gradient);
+            background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
             display: flex;
@@ -44,13 +48,27 @@
             overflow-x: hidden;
         }
 
-        /* Layout header */
+        /* Custom minimal scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        /* Header design */
         header {
-            background: rgba(15, 12, 32, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1.25rem 2rem;
+            background-color: var(--panel);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -63,188 +81,184 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            font-family: var(--font-display);
             font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(45deg, #a855f7, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.25rem;
+            color: var(--text);
             letter-spacing: -0.5px;
         }
 
         .logo-symbol {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            background-color: var(--primary);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.1rem;
-            -webkit-text-fill-color: initial;
-            box-shadow: 0 0 15px var(--primary-glow);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-family: var(--font-display);
         }
 
         .save-btn {
-            background: linear-gradient(135deg, var(--primary), #6b21a8);
-            border: none;
-            color: #fff;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            background-color: var(--primary);
+            border: 1px solid var(--primary);
+            color: #ffffff;
+            padding: 0.6rem 1.25rem;
+            border-radius: 6px;
             font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 15px var(--primary-glow);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s ease;
         }
 
         .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6);
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
         }
 
         .save-btn:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
-        /* Container Main */
+        /* Dashboard layout */
         main {
             flex: 1;
-            padding: 2.5rem;
-            max-width: 1600px;
+            padding: 2rem;
+            max-width: 1400px;
             width: 100%;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2.5rem;
+            gap: 2rem;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 968px) {
             main {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Panel Glass Styling */
+        /* Panel design */
         .panel {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 1.75rem;
-            box-shadow: var(--card-shadow);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background-color: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            height: 75vh;
+            height: 78vh;
         }
 
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         .panel-title {
-            font-size: 1.25rem;
+            font-family: var(--font-display);
+            font-size: 1.15rem;
             font-weight: 600;
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .panel-title::before {
-            content: '';
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-        }
-
-        .panel-title.groups::before {
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
+        .panel-counter {
+            font-size: 0.75rem;
+            background-color: var(--border);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 500;
         }
 
         .search-bar {
             width: 100%;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--glass-border);
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
             color: var(--text);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 0.65rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
             margin-bottom: 1rem;
             outline: none;
-            transition: all 0.3s;
+            transition: border-color 0.15s ease;
         }
 
         .search-bar:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
+            border-color: var(--primary);
         }
 
-        /* Content lists */
+        /* Item listing */
         .list-container {
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
-            padding-right: 0.5rem;
+            gap: 0.5rem;
+            padding-right: 0.25rem;
         }
 
         .list-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            padding: 1rem 1.25rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.85rem 1.1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.15s ease;
         }
 
         .list-item:hover {
-            background: var(--glass-hover);
-            transform: translateX(4px);
-            border-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--border-hover);
+            background-color: rgba(255, 255, 255, 0.01);
         }
 
         .item-info {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.2rem;
+            min-width: 0;
         }
 
         .item-name {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .item-meta {
-            font-size: 0.8rem;
-            color: var(--text-muted);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
             display: flex;
             gap: 0.75rem;
+            align-items: center;
         }
 
         .meta-tag {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2px 6px;
+            background-color: rgba(255, 255, 255, 0.04);
+            padding: 1px 6px;
             border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
         }
 
         .item-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         .action-btn {
@@ -252,60 +266,62 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            padding: 0.5rem;
+            padding: 0.45rem;
             border-radius: 6px;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .action-btn:hover {
             color: var(--text);
-            background: rgba(255, 255, 255, 0.08);
+            background-color: var(--border);
         }
 
         .action-btn.delete:hover {
             color: var(--danger);
-            background: rgba(255, 71, 87, 0.1);
+            background-color: var(--danger-bg);
         }
 
         .create-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed var(--glass-border);
-            color: var(--text);
-            padding: 0.75rem;
+            background-color: transparent;
+            border: 1px dashed var(--border);
+            color: var(--text-secondary);
+            padding: 0.7rem;
             border-radius: 8px;
             font-weight: 500;
+            font-size: 0.85rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            transition: all 0.3s;
+            transition: all 0.15s ease;
             margin-top: 1rem;
         }
 
         .create-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent);
-            color: var(--accent);
+            border-color: var(--primary);
+            color: var(--text);
+            background-color: rgba(99, 102, 241, 0.05);
         }
 
-        /* Detail Modal Editor */
+        /* Modal Panel redesign */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 6, 22, 0.75);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.15s ease;
         }
 
         .modal-overlay.active {
@@ -314,17 +330,16 @@
         }
 
         .modal {
-            background: #141026;
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            width: 650px;
-            max-width: 90%;
-            max-height: 85vh;
+            background-color: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 600px;
+            max-width: 92%;
+            max-height: 82vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.96);
+            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .modal-overlay.active .modal {
@@ -332,15 +347,16 @@
         }
 
         .modal-header {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--glass-border);
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .modal-title {
-            font-size: 1.3rem;
+            font-family: var(--font-display);
+            font-size: 1.1rem;
             font-weight: 700;
         }
 
@@ -349,16 +365,18 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 1.5rem;
-            transition: color 0.2s;
+            font-size: 1.25rem;
+            transition: color 0.15s ease;
+            display: flex;
+            align-items: center;
         }
 
         .modal-close:hover {
-            color: #fff;
+            color: var(--text);
         }
 
         .modal-body {
-            padding: 2rem;
+            padding: 1.5rem;
             overflow-y: auto;
             flex: 1;
             display: flex;
@@ -373,45 +391,43 @@
         }
 
         .form-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.75px;
         }
 
-        /* Tags for groups/permissions */
+        /* Pill styling */
         .tags-wrapper {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
-            min-height: 40px;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
+            gap: 0.4rem;
+            min-height: 42px;
+            padding: 0.6rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
         }
 
         .tag {
-            background: rgba(138, 43, 226, 0.2);
-            border: 1px solid rgba(138, 43, 226, 0.4);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            background-color: var(--pill-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
-        }
-
-        .tag:hover {
-            background: rgba(138, 43, 226, 0.35);
+            gap: 0.4rem;
         }
 
         .tag-remove {
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             color: var(--text-muted);
+            font-size: 0.95rem;
+            transition: color 0.15s ease;
         }
 
         .tag-remove:hover {
@@ -426,50 +442,50 @@
 
         .input-group input {
             flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
             color: var(--text);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            border-radius: 6px;
             outline: none;
-            font-size: 0.9rem;
-            transition: all 0.3s;
+            font-size: 0.85rem;
+            transition: border-color 0.15s ease;
         }
 
         .input-group input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 8px var(--primary-glow);
         }
 
         .add-tag-btn {
-            background: var(--primary);
-            border: none;
-            color: #fff;
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
+            background-color: var(--border);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.6rem 1.1rem;
+            border-radius: 6px;
             font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
         }
 
         .add-tag-btn:hover {
-            background: #9b4cfb;
+            background-color: var(--border-hover);
+            border-color: var(--border-hover);
         }
 
-        /* Autocomplete dropdown */
+        /* Dropdowns */
         .autocomplete-dropdown {
             position: absolute;
             top: 100%;
             left: 0;
             width: 100%;
-            background: #17132d;
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
+            background-color: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
             margin-top: 4px;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
             z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             display: none;
         }
 
@@ -478,58 +494,60 @@
         }
 
         .autocomplete-item {
-            padding: 0.6rem 1rem;
+            padding: 0.55rem 0.85rem;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
         }
 
         .autocomplete-item:hover {
-            background: rgba(255,255,255,0.05);
-            color: var(--accent);
+            background-color: var(--border);
+            color: var(--text);
         }
 
         /* Modal footer */
         .modal-footer {
-            padding: 1.5rem 2rem;
-            border-top: 1px solid var(--glass-border);
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
         }
 
         .cancel-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
+            background-color: var(--border);
+            border: 1px solid var(--border);
             color: var(--text);
-            padding: 0.65rem 1.25rem;
-            border-radius: 8px;
+            padding: 0.55rem 1.1rem;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
         }
 
         .cancel-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background-color: var(--border-hover);
+            border-color: var(--border-hover);
         }
 
-        /* Loading / Toast notification styling */
+        /* Sleek clean toast notifications */
         .toast {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: rgba(20, 16, 38, 0.9);
-            border-left: 4px solid var(--primary);
-            padding: 1rem 1.5rem;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background-color: var(--panel);
+            border: 1px solid var(--border);
+            padding: 0.85rem 1.25rem;
             border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            transform: translateY(150%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            gap: 0.6rem;
+            transform: translateY(160%);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 2000;
-            backdrop-filter: blur(10px);
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
         .toast.active {
@@ -538,15 +556,17 @@
 
         .toast-icon {
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         .toast.success {
-            border-left-color: var(--success);
+            border-color: var(--success);
+            color: var(--success);
         }
         
         .toast.error {
-            border-left-color: var(--danger);
+            border-color: var(--danger);
+            color: var(--danger);
         }
     </style>
 </head>
@@ -555,72 +575,81 @@
     <header>
         <div class="logo">
             <div class="logo-symbol">FP</div>
-            FoliaPerms Editor Panel
+            FoliaPerms Editor
         </div>
         <button class="save-btn" id="global-save-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             Save Changes
         </button>
     </header>
 
     <main>
-        <!-- Groups Panel -->
+        <!-- Groups Card -->
         <div class="panel">
             <div class="panel-header">
-                <h2 class="panel-title groups">Groups</h2>
+                <h2 class="panel-title">
+                    Groups <span class="panel-counter" id="groups-count">0</span>
+                </h2>
             </div>
             <input type="text" class="search-bar" id="search-groups" placeholder="Search groups...">
             <div class="list-container" id="groups-list">
-                <!-- Javascript populated -->
+                <!-- JS populated -->
             </div>
             <button class="create-btn" onclick="openCreateGroupModal()">
-                + Create Group
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Create Group
             </button>
         </div>
 
-        <!-- Players Panel -->
+        <!-- Players Card -->
         <div class="panel">
             <div class="panel-header">
-                <h2 class="panel-title players">Players</h2>
+                <h2 class="panel-title">
+                    Players <span class="panel-counter" id="players-count">0</span>
+                </h2>
             </div>
             <input type="text" class="search-bar" id="search-players" placeholder="Search players...">
             <div class="list-container" id="players-list">
-                <!-- Javascript populated -->
+                <!-- JS populated -->
             </div>
             <button class="create-btn" onclick="openCreatePlayerModal()">
-                + Cache Player Profile
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Cache Player Profile
             </button>
         </div>
     </main>
 
-    <!-- Overlay & Modal Editor -->
+    <!-- Overlay & Editor Dialog -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title" id="modal-title">Edit Profile</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
             <div class="modal-body">
-                <!-- Dynamic form fields -->
+                <!-- Group or UUID specific field -->
                 <div class="form-section" id="groups-field-section">
-                    <span class="form-label" id="modal-field-label">Groups</span>
+                    <span class="form-label" id="modal-field-label">Assigned Groups</span>
                     <div class="tags-wrapper" id="modal-groups-tags">
-                        <!-- Tags listed -->
+                        <!-- Pill items -->
                     </div>
                     <div class="input-group">
-                        <input type="text" id="group-add-input" placeholder="Type a group to add..." oninput="handleGroupInput(this)">
+                        <input type="text" id="group-add-input" placeholder="Type a group name..." oninput="handleGroupInput(this)">
                         <button class="add-tag-btn" onclick="addGroupTag()">Add</button>
                         <div class="autocomplete-dropdown" id="group-autocomplete"></div>
                     </div>
                 </div>
 
+                <!-- Permission Node Editor -->
                 <div class="form-section">
                     <span class="form-label">Permission Nodes</span>
                     <div class="tags-wrapper" id="modal-perms-tags">
-                        <!-- Tags listed -->
+                        <!-- Pill items -->
                     </div>
                     <div class="input-group">
-                        <input type="text" id="perm-add-input" placeholder="Type a permission to add..." oninput="handlePermInput(this)">
+                        <input type="text" id="perm-add-input" placeholder="Type a permission node..." oninput="handlePermInput(this)">
                         <button class="add-tag-btn" onclick="addPermTag()">Add</button>
                         <div class="autocomplete-dropdown" id="perm-autocomplete"></div>
                     </div>
@@ -632,14 +661,14 @@
         </div>
     </div>
 
-    <!-- Toast message -->
+    <!-- Minimal custom toast -->
     <div class="toast" id="toast">
         <span class="toast-icon" id="toast-icon">✔</span>
-        <span id="toast-msg">Settings saved!</span>
+        <span id="toast-msg">Settings saved successfully</span>
     </div>
 
     <script>
-        // Data states
+        // Reactive in-memory state
         let state = {
             users: {},
             groups: {},
@@ -648,13 +677,13 @@
 
         let currentEditor = {
             type: null, // 'user' or 'group'
-            id: null    // UUID or Group name
+            id: null    // UUID or Group key name
         };
 
-        // Extracted from browser URL query
+        // Parse token from URL queries
         const token = new URLSearchParams(window.location.search).get('token') || '';
 
-        // Toast helper
+        // Toast visual feedback
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toast-icon');
@@ -670,7 +699,7 @@
             }, 3000);
         }
 
-        // Fetch current states
+        // Fetch permissions state from embed API
         async function loadState() {
             try {
                 const res = await fetch(`/api/data?token=${token}`);
@@ -678,12 +707,12 @@
                 state = await res.json();
                 renderLists();
             } catch (err) {
-                console.error("Failed to load permissions:", err);
+                console.error("Failed to fetch state:", err);
                 showToast("Failed to connect to FoliaPerms server. Session may be expired.", "error");
             }
         }
 
-        // Save states back to Minecraft server
+        // POST synchronization to Minecraft server
         async function saveState() {
             try {
                 const res = await fetch(`/api/save?token=${token}`, {
@@ -707,15 +736,17 @@
             }
         }
 
-        // Render visual listing components
+        // Render listings on the grid
         function renderLists() {
             // Render groups list
             const groupsContainer = document.getElementById('groups-list');
             const searchGroups = document.getElementById('search-groups').value.toLowerCase();
             groupsContainer.innerHTML = '';
             
+            let gCount = 0;
             Object.keys(state.groups).forEach(name => {
                 if (name.includes(searchGroups)) {
+                    gCount++;
                     const g = state.groups[name];
                     const permsCount = g.permissions ? g.permissions.length : 0;
                     const membersCount = g.members ? g.members.length : 0;
@@ -727,27 +758,30 @@
                         <div class="item-info">
                             <span class="item-name">${name}</span>
                             <div class="item-meta">
-                                <span class="meta-tag">&bull; ${permsCount} permissions</span>
-                                <span class="meta-tag">&bull; ${membersCount} members</span>
+                                <span class="meta-tag">${permsCount} permissions</span>
+                                <span class="meta-tag">${membersCount} members</span>
                             </div>
                         </div>
                         <div class="item-actions">
                             <button class="action-btn delete" onclick="deleteGroup('${name}', event)">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
                     `;
                     groupsContainer.appendChild(div);
                 }
             });
+            document.getElementById('groups-count').innerText = gCount;
 
             // Render players list
             const playersContainer = document.getElementById('players-list');
             const searchPlayers = document.getElementById('search-players').value.toLowerCase();
             playersContainer.innerHTML = '';
 
+            let pCount = 0;
             Object.keys(state.users).forEach(uuid => {
                 if (uuid.includes(searchPlayers)) {
+                    pCount++;
                     const u = state.users[uuid];
                     const permsCount = u.permissions ? u.permissions.length : 0;
                     const groupsCount = u.groups ? u.groups.length : 0;
@@ -757,29 +791,30 @@
                     div.onclick = () => openUserEditor(uuid);
                     div.innerHTML = `
                         <div class="item-info">
-                            <span class="item-name" style="font-family: monospace; font-size: 0.9rem;">${uuid}</span>
+                            <span class="item-name" style="font-family: monospace; font-size: 0.8rem; letter-spacing: -0.2px;">${uuid}</span>
                             <div class="item-meta">
-                                <span class="meta-tag">&bull; ${permsCount} permissions</span>
-                                <span class="meta-tag">&bull; ${groupsCount} groups</span>
+                                <span class="meta-tag">${permsCount} permissions</span>
+                                <span class="meta-tag">${groupsCount} groups</span>
                             </div>
                         </div>
                         <div class="item-actions">
                             <button class="action-btn delete" onclick="deletePlayer('${uuid}', event)">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
                     `;
                     playersContainer.appendChild(div);
                 }
             });
+            document.getElementById('players-count').innerText = pCount;
         }
 
-        // Delete group
+        // Delete group record
         function deleteGroup(name, event) {
             event.stopPropagation();
             if (confirm(`Are you sure you want to delete group '${name}'?`)) {
                 delete state.groups[name];
-                // remove group from users
+                // remove reference from users
                 Object.values(state.users).forEach(u => {
                     if (u.groups) u.groups = u.groups.filter(g => g !== name);
                 });
@@ -787,12 +822,12 @@
             }
         }
 
-        // Delete player
+        // Delete player record
         function deletePlayer(uuid, event) {
             event.stopPropagation();
             if (confirm(`Are you sure you want to delete player '${uuid}'?`)) {
                 delete state.users[uuid];
-                // remove player from group members
+                // remove reference from groups
                 Object.values(state.groups).forEach(g => {
                     if (g.members) g.members = g.members.filter(m => m !== uuid);
                 });
@@ -800,15 +835,15 @@
             }
         }
 
-        // Modal triggers
+        // Open specific modal editors
         function openGroupEditor(name) {
             currentEditor.type = 'group';
             currentEditor.id = name;
             
-            document.getElementById('modal-title').innerText = `Group Editor \u2BBF ${name}`;
+            document.getElementById('modal-title').innerText = `Group Settings: ${name}`;
             document.getElementById('groups-field-section').style.display = 'flex';
-            document.getElementById('modal-field-label').innerText = 'Members (UUIDs)';
-            document.getElementById('group-add-input').placeholder = 'Type member UUID to add...';
+            document.getElementById('modal-field-label').innerText = 'Group Members (UUIDs)';
+            document.getElementById('group-add-input').placeholder = 'Type player UUID to add...';
             
             refreshModalTags();
             document.getElementById('modal-overlay').classList.add('active');
@@ -818,7 +853,7 @@
             currentEditor.type = 'user';
             currentEditor.id = uuid;
 
-            document.getElementById('modal-title').innerText = `Player Editor \u2BBF ${uuid}`;
+            document.getElementById('modal-title').innerText = `Player Settings: ${uuid}`;
             document.getElementById('groups-field-section').style.display = 'flex';
             document.getElementById('modal-field-label').innerText = 'Assigned Groups';
             document.getElementById('group-add-input').placeholder = 'Type group to assign...';
@@ -829,13 +864,13 @@
 
         function closeModal() {
             document.getElementById('modal-overlay').classList.remove('active');
-            // Clear autocomplete fields
             document.getElementById('group-autocomplete').classList.remove('active');
             document.getElementById('perm-autocomplete').classList.remove('active');
             document.getElementById('group-add-input').value = '';
             document.getElementById('perm-add-input').value = '';
         }
 
+        // Render pills/badges in modals
         function refreshModalTags() {
             const grpsWrapper = document.getElementById('modal-groups-tags');
             const permsWrapper = document.getElementById('modal-perms-tags');
@@ -850,8 +885,6 @@
                     g.members.forEach(member => {
                         const tag = document.createElement('span');
                         tag.className = 'tag';
-                        tag.style.background = 'rgba(0, 242, 254, 0.15)';
-                        tag.style.borderColor = 'rgba(0, 242, 254, 0.4)';
                         tag.innerHTML = `
                             ${member}
                             <span class="tag-remove" onclick="removeMemberTag('${member}')">&times;</span>
@@ -880,8 +913,6 @@
                     u.groups.forEach(gName => {
                         const tag = document.createElement('span');
                         tag.className = 'tag';
-                        tag.style.background = 'rgba(0, 242, 254, 0.15)';
-                        tag.style.borderColor = 'rgba(0, 242, 254, 0.4)';
                         tag.innerHTML = `
                             ${gName}
                             <span class="tag-remove" onclick="removeGroupTag('${gName}')">&times;</span>
@@ -905,11 +936,10 @@
             }
         }
 
-        // Add/Remove Tags inside editor modal
+        // Pills addition and removal modifications
         function removeGroupTag(name) {
             const u = state.users[currentEditor.id];
             u.groups = u.groups.filter(g => g !== name);
-            // remove member from group state
             if (state.groups[name] && state.groups[name].members) {
                 state.groups[name].members = state.groups[name].members.filter(m => m !== currentEditor.id);
             }
@@ -920,7 +950,6 @@
         function removeMemberTag(uuid) {
             const g = state.groups[currentEditor.id];
             g.members = g.members.filter(m => m !== uuid);
-            // remove group from user state
             if (state.users[uuid] && state.users[uuid].groups) {
                 state.users[uuid].groups = state.users[uuid].groups.filter(g => g !== currentEditor.id);
             }
@@ -950,7 +979,6 @@
                 if (!g.members) g.members = [];
                 if (!g.members.includes(val)) {
                     g.members.push(val);
-                    // Add group assignment to user profile if exists
                     if (!state.users[val]) state.users[val] = { permissions: [], groups: [] };
                     if (!state.users[val].groups) state.users[val].groups = [];
                     if (!state.users[val].groups.includes(currentEditor.id)) state.users[val].groups.push(currentEditor.id);
@@ -960,7 +988,6 @@
                 if (!u.groups) u.groups = [];
                 if (!u.groups.includes(val)) {
                     u.groups.push(val);
-                    // Add member to group profile if exists
                     if (!state.groups[val]) state.groups[val] = { permissions: [], members: [] };
                     if (!state.groups[val].members) state.groups[val].members = [];
                     if (!state.groups[val].members.includes(currentEditor.id)) state.groups[val].members.push(currentEditor.id);
@@ -992,14 +1019,14 @@
             document.getElementById('perm-autocomplete').classList.remove('active');
         }
 
-        // Autocomplete search handlers
+        // Dropdown autocomplete lists
         function handleGroupInput(el) {
             const dropdown = document.getElementById('group-autocomplete');
             const val = el.value.trim().toLowerCase();
             
             if (currentEditor.type === 'group') {
                 dropdown.classList.remove('active');
-                return; // User is typing a player UUID, no auto-complete
+                return; // User is inputting a player UUID
             }
             
             if (!val) {
@@ -1056,7 +1083,7 @@
             dropdown.classList.add('active');
         }
 
-        // New profile creations
+        // Dynamic element creation helpers
         function openCreateGroupModal() {
             const name = prompt("Enter new group name:");
             if (!name) return;
@@ -1075,7 +1102,7 @@
             if (!uuid) return;
             const normalized = uuid.trim();
             if (state.users[normalized]) {
-                alert("Player is already cached!");
+                alert("Player profile is already cached!");
                 return;
             }
             state.users[normalized] = { permissions: [], groups: [] };
@@ -1083,7 +1110,7 @@
             openUserEditor(normalized);
         }
 
-        // Close autocompletes if clicking outside
+        // Autocomplete closing listener
         window.addEventListener('click', (e) => {
             if (!e.target.closest('.input-group')) {
                 document.getElementById('group-autocomplete').classList.remove('active');
@@ -1091,12 +1118,12 @@
             }
         });
 
-        // Register action triggers
+        // Event hooks
         document.getElementById('search-groups').addEventListener('input', renderLists);
         document.getElementById('search-players').addEventListener('input', renderLists);
         document.getElementById('global-save-btn').addEventListener('click', saveState);
 
-        // Load initial states
+        // Load initial states on mount
         loadState();
     </script>
 </body>
