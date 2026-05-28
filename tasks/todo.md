@@ -35,6 +35,8 @@
 - [x] Incorporate weight/prefix configurations inside Web Editor server and UI modal inputs
 - [x] Compile and verify using `bash gradlew build`
 
+## Bug Fixes
+- [x] Fix PlaceholderAPI hook not registering due to STARTUP load order (register dynamically on PluginEnableEvent)
 ## Implementation & Verification Review
 
 ### 1. Group Weight & Prefix Data Hierarchy

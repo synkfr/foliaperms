@@ -40,6 +40,7 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
     private PermissionService permissionService;
     private final Map<UUID, PermissionAttachment> attachments = new ConcurrentHashMap<>();
     private kaiakk.foliaPerms.web.WebEditorServer webEditorServer;
+    private boolean placeholderApiHooked = false;
 
     @Override
     public void onLoad() {
@@ -89,10 +90,7 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
         getServer().getPluginManager().registerEvents(new kaiakk.foliaPerms.events.PluginEnableListener(this), this);
         getServer().getPluginManager().registerEvents(new kaiakk.foliaPerms.gui.GuiListener(), this);
 
-        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new kaiakk.foliaPerms.internal.FoliaPermsExpansion(this).register();
-            getLogger().info("Successfully hooked into PlaceholderAPI and registered placeholders.");
-        }
+        registerPlaceholderAPI();
 
         getServer().getServicesManager().register(FoliaPermsAPI.class, this, this, ServicePriority.Normal);
         getLogger().info("FoliaPerms API registered with ServicesManager.");
@@ -114,6 +112,15 @@ public final class FoliaPerms extends JavaPlugin implements FoliaPermsAPI {
             getLogger().info("Permission attachments initialized for " + Bukkit.getOnlinePlayers().size() + " players.");
         } catch (Exception e) {
             kaiakk.foliaPerms.internal.ErrorHandler.handle(this, "Failed to gather registered permissions", e);
+        }
+    }
+
+    public void registerPlaceholderAPI() {
+        if (placeholderApiHooked) return;
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new kaiakk.foliaPerms.internal.FoliaPermsExpansion(this).register();
+            getLogger().info("Successfully hooked into PlaceholderAPI and registered placeholders.");
+            placeholderApiHooked = true;
         }
     }
 

@@ -17,6 +17,11 @@ public class PluginEnableListener implements Listener {
         try {
             String name = event.getPlugin() == null ? "unknown" : event.getPlugin().getName();
             plugin.getLogger().info("Plugin enabled: " + name + " — gathering permissions and refreshing attachments.");
+            
+            if (name.equalsIgnoreCase("PlaceholderAPI")) {
+                plugin.registerPlaceholderAPI();
+            }
+            
             if (plugin.getPermissionService() != null) {
                 plugin.getPermissionService().gatherRegisteredPermissions(plugin);
                 plugin.refreshAllAttachments();
