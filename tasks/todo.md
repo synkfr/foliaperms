@@ -49,6 +49,8 @@
 
 ## Bug Fixes
 - [x] Fix PlaceholderAPI hook not registering due to STARTUP load order (register dynamically on PluginEnableEvent)
+- [x] Fix web editor session expiration and loss of session on reload/restart (increase session length to 3 hours, persist tokens to sessions.yml)
+
 ## Implementation & Verification Review
 
 ### 1. Group Weight & Prefix Data Hierarchy

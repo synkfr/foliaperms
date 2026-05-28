@@ -31,7 +31,7 @@ public class WebEditorServer {
     private final int port;
     private HttpServer server;
 
-    // Tokens expire after 10 minutes (System.currentTimeMillis() + 600,000)
+    // Tokens expire after 3 hours (System.currentTimeMillis() + 180 * 60 * 1000)
     private final Map<String, Long> activeTokens = new ConcurrentHashMap<>();
 
     public WebEditorServer(FoliaPerms plugin, String host, int port) {
@@ -39,6 +39,7 @@ public class WebEditorServer {
         this.service = plugin.getPermissionService();
         this.host = host;
         this.port = port;
+        loadTokens();
     }
 
     public synchronized void start() {
@@ -75,11 +76,12 @@ public class WebEditorServer {
     }
 
     /**
-     * Generates a new session token valid for 10 minutes.
+     * Generates a new session token valid for 3 hours.
      */
     public String generateToken() {
         String token = UUID.randomUUID().toString().replace("-", "");
-        activeTokens.put(token, System.currentTimeMillis() + 10 * 60 * 1000);
+        activeTokens.put(token, System.currentTimeMillis() + 180L * 60L * 1000L);
+        saveTokens();
         return token;
     }
 
@@ -89,9 +91,43 @@ public class WebEditorServer {
         if (expiry == null) return false;
         if (System.currentTimeMillis() > expiry) {
             activeTokens.remove(token);
+            saveTokens();
             return false;
         }
         return true;
+    }
+
+    private void loadTokens() {
+        try {
+            java.io.File file = new java.io.File(plugin.getDataFolder(), "sessions.yml");
+            if (!file.exists()) return;
+            org.bukkit.configuration.file.YamlConfiguration cfg = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(file);
+            if (cfg.isConfigurationSection("sessions")) {
+                for (String token : cfg.getConfigurationSection("sessions").getKeys(false)) {
+                    long expiry = cfg.getLong("sessions." + token);
+                    if (expiry > System.currentTimeMillis()) {
+                        activeTokens.put(token, expiry);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load sessions: " + e.getMessage());
+        }
+    }
+
+    private void saveTokens() {
+        try {
+            java.io.File file = new java.io.File(plugin.getDataFolder(), "sessions.yml");
+            org.bukkit.configuration.file.YamlConfiguration cfg = new org.bukkit.configuration.file.YamlConfiguration();
+            for (Map.Entry<String, Long> entry : activeTokens.entrySet()) {
+                if (entry.getValue() > System.currentTimeMillis()) {
+                    cfg.set("sessions." + entry.getKey(), entry.getValue());
+                }
+            }
+            cfg.save(file);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save sessions: " + e.getMessage());
+        }
     }
 
     private String getQueryParam(String query, String paramName) {
