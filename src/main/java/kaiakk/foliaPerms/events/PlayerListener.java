@@ -31,12 +31,31 @@ public class PlayerListener implements Listener {
             player.sendMessage(welcome);
         }
         
-        // Apply permission attachment
+        // Apply default group if first-time or groupless player joins
+        boolean assignedDefault = false;
         try {
-            plugin.refreshPlayerAttachment(player);
-            plugin.getLogger().fine("Applied permission attachment for " + player.getName());
+            var service = plugin.getPermissionService();
+            if (service != null) {
+                var userData = service.getUser(player.getUniqueId());
+                if (userData == null || userData.getGroups().isEmpty()) {
+                    service.addUserToGroup(player.getUniqueId(), "default");
+                    service.saveAsync();
+                    assignedDefault = true;
+                    plugin.getLogger().info("Automatically assigned default group to first-time/groupless player " + player.getName());
+                }
+            }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to apply permissions to " + player.getName() + ": " + e.getMessage());
+            plugin.getLogger().warning("Failed to automatically assign default group to " + player.getName() + ": " + e.getMessage());
+        }
+        
+        // Apply permission attachment if not already applied via addUserToGroup
+        if (!assignedDefault) {
+            try {
+                plugin.refreshPlayerAttachment(player);
+                plugin.getLogger().fine("Applied permission attachment for " + player.getName());
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to apply permissions to " + player.getName() + ": " + e.getMessage());
+            }
         }
     }
 
